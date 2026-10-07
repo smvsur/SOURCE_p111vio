@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="vo_find_multi_boxes">
+<interface>
+<ic>
+<par name="InputDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="OutputDict" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*</c>
+<c>*</c>
+<c>*</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        CREATE MAIN OUTPUT DICT</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<l>OutputDict := dict{}</l>
+<l>OutputDict.Error := dict{}</l>
+<l>Result1 := dict{}</l>
+<l>Result2 := dict{}</l>
+<c></c>
+<l>try</l>
+<c>    </c>
+<c>    *Get Input Image</c>
+<l>    gen_empty_obj (InputImage)</l>
+<l>    InputImage := InputDict.InputImage</l>
+<l>    OutputDict.InputImage := InputImage</l>
+<l>    OutputDict.ImageResult := InputImage</l>
+<c>    </c>
+<c>    </c>
+<l>catch (Ex)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'ERROR : Main params'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        CREATE 2 RECIPE PARAMS</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<l>try</l>
+<c>*First pelletizer dict</c>
+<l>copy_dict (InputDict, [], [], MainDict)</l>
+<c></c>
+<c>*Create second palletizer dict</c>
+<l>copy_dict (InputDict.RecipeDict.TrainDict.SecondRecipe.Recipe, [], [], tempRecipeDict)</l>
+<c></c>
+<l>copy_dict (InputDict, [], [], SecondDict)</l>
+<c></c>
+<l>SecondDict.RecipeDict := tempRecipeDict</l>
+<c></c>
+<l>BestCandidatesResultDict := dict{}</l>
+<c></c>
+<l>is_all_found := false</l>
+<c></c>
+<l>catch (Exception)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'MultiModel: Getting Second Recipe'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<l>endtry</l>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        GET Z TOP Layer REGION</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<c>    ********************************</c>
+<c>    *Init default values</c>
+<c>    *********************************</c>
+<c>    </c>
+<c>    *Min area to consider a correct top region</c>
+<l>    region_features (InputDict.RecipeDict.TrainDict.BoxRegion, 'area', MinArea)</l>
+<c>    </c>
+<l>    MinArea := MinArea/3</l>
+<c>    </c>
+<c>    *DeltaZ used to determine the steps needed to go down to find a complete layer</c>
+<l>    DeltaZ := InputDict.RecipeDict.TrainDict.BoxSize.High / 2.5</l>
+<c>    </c>
+<c>    *Max compactness of the region to consider it a correct top region</c>
+<l>    Maxcompactness := 4.5</l>
+<c>    </c>
+<c>    *Min Rectangularity of the region to consider it a correct top region</c>
+<l>    MinRectangularity := 0.8</l>
+<c>    </c>
+<c>    *Dilate final region</c>
+<l>    DilationRect := 10</l>
+<c>    </c>
+<c>    </c>
+<c>    ********************************</c>
+<c>    * GET DICT PARAMS (optional)</c>
+<c>    ********************************</c>
+<c>    </c>
+<l>    get_dict_param (InputDict.RecipeDict.TrainDict, 'keys', [], TrainDictKeys)</l>
+<l>    if(find(TrainDictKeys,'GetTopROI')&gt;=0)</l>
+<c>        </c>
+<l>        GetTopDict := InputDict.RecipeDict.TrainDict.GetTopROI</l>
+<c>        </c>
+<c>        </c>
+<l>        get_dict_param (GetTopDict, 'keys', [], GetTopDictKeys)</l>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'MinArea')&gt;=0)</l>
+<l>            MinArea := GetTopDict.MinArea</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'DeltaZ')&gt;=0)</l>
+<l>            DeltaZ := GetTopDict.DeltaZ</l>
+<c>            </c>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'Maxcompactness')&gt;=0)</l>
+<l>            Maxcompactness := GetTopDict.Maxcompactness</l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'MinRectangularity')&gt;=0)</l>
+<l>            MinRectangularity := GetTopDict.MinRectangularity</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'DilationRect')&gt;=0)</l>
+<l>            DilationRect := GetTopDict.DilationRect</l>
+<l>        endif</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>     decompose3(InputDict.DepthMap,X,Y,Z)</l>
+<c>    </c>
+<c>    </c>
+<c>    **********************</c>
+<c>    *get pallet region </c>
+<c>    **********************</c>
+<l>    WorkRegion := InputDict.RecipeDict.TrainDict.WorkRegion</l>
+<c>    </c>
+<l>    DepthMap := InputDict.DepthMap</l>
+<c>    </c>
+<l>    Palet_Width := 1200</l>
+<l>    Palet_Large := 1300</l>
+<c>    </c>
+<l>    vo_define_palet (DepthMap, WorkRegion, WorkRegion, Palet_Large, Palet_Width)</l>
+<c>    </c>
+<l>    dilation_rectangle1 (WorkRegion, RegionDilation, 20, 20)</l>
+<l>    fill_up (RegionDilation, WorkRegion)</l>
+<c>       </c>
+<c>    </c>
+<c>    *******************************</c>
+<c>    * Get top Z layer procedure</c>
+<c>    *******************************</c>
+<c>    </c>
+<l>    get_top_Z_work_region (Z, WorkRegion, LayerRegion, DeltaZ, MinArea, MinRectangularity, Maxcompactness)</l>
+<c>    </c>
+<c>    ********************************</c>
+<c>    * Process region</c>
+<c>    ********************************</c>
+<l>    dilation_rectangle1 (LayerRegion, RegionDilation, DilationRect, DilationRect)</l>
+<l>*     fill_up (RegionDilation, RegionFillUp)</l>
+<l>    fill_up_shape (RegionDilation, RegionFillUp, 'area', 1, 100)</l>
+<c>    </c>
+<l>    union1 (RegionFillUp, TopZRegion)</l>
+<c>    </c>
+<l>catch (Exception)</l>
+<l>    OutputDict.Error.General := 'MultiModel: Getting Top layer'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<l>endtry</l>
+<c></c>
+<c></c>
+<l>for Index := 0 to 5 by 1</l>
+<c>    </c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<c>*                                                                        FIND BOXES</c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<l>try</l>
+<c></c>
+<l>vo_find_boxes_2 (MainDict, Result1)</l>
+<c></c>
+<l>vo_find_boxes_2 (SecondDict, Result2)</l>
+<c></c>
+<l>* stop()</l>
+<c></c>
+<l>catch (Exception)</l>
+<l>    OutputDict.Error.General := 'MultiModel: Finding models'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<l>endtry</l>
+<c>****************************************************************************************************************************************************************************************************</c>
+<c>*                                                                        GET ALL BOXES</c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<l>try</l>
+<c></c>
+<l>AllCandidates := dict{}</l>
+<c></c>
+<c>*Get all candidates of main dict</c>
+<l>get_dict_param (Result1, 'keys', [], Result1Keys)</l>
+<c></c>
+<l>if(find(Result1Keys, 'Candidates')&gt;=0) </l>
+<l>    copy_dict (Result1.Candidates,[], [], AllCandidates)</l>
+<l>endif</l>
+<c></c>
+<l>get_dict_param (AllCandidates, 'keys', [], AllCandidatesKeys)</l>
+<c></c>
+<l>NCandidates := |AllCandidatesKeys|</l>
+<c></c>
+<l>NCandidates1 := NCandidates</l>
+<c></c>
+<c>*Get all candidates of second dict</c>
+<l>get_dict_param (Result2, 'keys', [], Result2Keys)</l>
+<c></c>
+<l>if(find(Result2Keys, 'Candidates')&gt;=0) </l>
+<c>    </c>
+<l>    Candidates := Result2.Candidates</l>
+<l>    get_dict_param (Candidates, 'keys', [], CandidatesKeys)</l>
+<c>    </c>
+<c>    </c>
+<l>    for IndexCandidates := 0 to |CandidatesKeys|-1 by 1</l>
+<c>        </c>
+<l>        AllCandidates.[IndexCandidates + NCandidates] := Candidates.[IndexCandidates]</l>
+<c>        </c>
+<l>    endfor</l>
+<c>    </c>
+<l>NCandidates2 := |CandidatesKeys|</l>
+<c></c>
+<l>else </l>
+<c>    </c>
+<l>    NCandidates2 := 0 </l>
+<c>    </c>
+<l>*     stop()</l>
+<c>    </c>
+<l>endif</l>
+<c></c>
+<l>NCandidates := IndexCandidates + NCandidates</l>
+<c></c>
+<c></c>
+<c>*Get all candidates of BestSegmentation</c>
+<l>get_dict_param (BestCandidatesResultDict, 'keys', [], BestCandidatesResultDictKeys)</l>
+<c></c>
+<l>if( |BestCandidatesResultDictKeys| &gt; 0) </l>
+<c>    </c>
+<l>    Candidates := BestCandidatesResultDict</l>
+<l>    get_dict_param (Candidates, 'keys', [], CandidatesKeys)</l>
+<c>    </c>
+<c>    </c>
+<l>    for IndexCandidates := 0 to |CandidatesKeys|-1 by 1</l>
+<c>        </c>
+<l>        AllCandidates.[IndexCandidates + NCandidates] := Candidates.[IndexCandidates]</l>
+<c>        </c>
+<l>    endfor</l>
+<c>    </c>
+<l>*     stop()</l>
+<c>    </c>
+<l>endif</l>
+<c></c>
+<c>*Get Top Z Region from MainDict</c>
+<c></c>
+<l>* stop()</l>
+<c></c>
+<l>catch (Exception)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'MultiModel: Getting All candidates'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<l>    stop()</l>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c></c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<c>*                                                                        CHECK COLISION BOXES</c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<c></c>
+<l>try</l>
+<c></c>
+<l>get_dict_param (AllCandidates, 'keys', [], AllCandidatesKeys)</l>
+<c></c>
+<l>if(|AllCandidatesKeys| &gt; 1 )</l>
+<c></c>
+<l>vo_check_colision_boxes (TopZRegion, AllCandidates, CandidatesResult)</l>
+<c></c>
+<l>else</l>
+<c>    </c>
+<l>    copy_dict (AllCandidates, [], [], CandidatesResult)</l>
+<c></c>
+<l>endif</l>
+<c></c>
+<c>*Get all candidates box region</c>
+<l>get_dict_param (CandidatesResult, 'keys', [], CanidatesResultKeys)</l>
+<c></c>
+<l>gen_empty_obj (FindBoxes)</l>
+<l>gen_empty_obj (Image)</l>
+<c></c>
+<l>Image := Result1.InputImage</l>
+<c></c>
+<l>for IndexCandidates := 0 to |CanidatesResultKeys|-1 by 1</l>
+<c>    </c>
+<l>    concat_obj (FindBoxes, CandidatesResult.[IndexCandidates].BoxRegion, FindBoxes)</l>
+<c>    </c>
+<l>endfor</l>
+<c></c>
+<l>* stop()</l>
+<c></c>
+<l>catch (Exception2)</l>
+<l>    OutputDict.Error.General := 'MultiModel: Checking colision boxes'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<l>    stop()</l>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c></c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<c>*                                                                        CHECK IF ALL BOXES HAVE BEEN FOUND</c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<l>try</l>
+<c></c>
+<l>get_dict_param (CandidatesResult, 'keys', [], CandidatesResultKeys)</l>
+<c></c>
+<l>PercentageBox := 65</l>
+<c></c>
+<l>numBoxes := 0</l>
+<c></c>
+<l>if(|CandidatesResultKeys|&gt;0)</l>
+<c>    </c>
+<l>   Box :=  CandidatesResult.[0].BoxRegion</l>
+<c></c>
+<l> region_features (Box,'area', BestBoxArea)</l>
+<c>                    </c>
+<c>                    *get union of all region boxes </c>
+<l>                    union1(FindBoxes, AllBoxes)</l>
+<c>                    </c>
+<l>                    OutputDict.MissingBox := dict{}</l>
+<c>                    </c>
+<l>                    try</l>
+<c>                        </c>
+<c>                        </c>
+<c>                        *get difference to find if some box wasn't found </c>
+<l>                        difference(TopZRegion,AllBoxes, RegionDifference)</l>
+<c>                        </c>
+<l>                        erosion_rectangle1 (RegionDifference, RegionErosion, 20, 20)</l>
+<c>                        </c>
+<l>                        connection (RegionErosion, ConnectedRegions)</l>
+<c>                        </c>
+<l>                        dilation_rectangle1 (ConnectedRegions, RegionDilation, 20, 20)</l>
+<c>                        </c>
+<l>                        select_shape (RegionDilation, SelectedRegions, 'area', 'and', 1000, 999999999999)</l>
+<c>                        </c>
+<l>                        region_features (SelectedRegions, 'compactness', Value1)</l>
+<c>                        </c>
+<l>                        select_shape (SelectedRegions, MissingBox, 'compactness', 'and', 0, 5)</l>
+<c>                        </c>
+<l>                        region_features (MissingBox, 'area', diffArea)</l>
+<c>                        </c>
+<l>                        is_all_found := true</l>
+<c>                        </c>
+<l>                        if(|diffArea|)</l>
+<c>                            </c>
+<l>                            tuple_max (diffArea,MaxArea)</l>
+<c>                            </c>
+<c>                            </c>
+<l>                            OutputDict.MissingBox.Region := MissingBox</l>
+<l>                            OutputDict.MissingBox.Area := MaxArea</l>
+<c>                            </c>
+<c>                            </c>
+<l>                            if(MaxArea &gt;= BestBoxArea * (PercentageBox/100.0))</l>
+<c>                                </c>
+<l>                                count_obj (FindBoxes, NumFindBoxes)</l>
+<c>                                </c>
+<l>                                if(NumFindBoxes &gt; numBoxes)</l>
+<c>                                    </c>
+<l>                                    BestSegmentation := FindBoxes</l>
+<l>                                    numBoxes := NumFindBoxes</l>
+<c>                                    </c>
+<l>                                    BestCandidatesResultDict := CandidatesResult</l>
+<c>                                    </c>
+<l>                                endif</l>
+<c>                                </c>
+<l>                                gen_empty_obj (FindBoxes)</l>
+<c>                                </c>
+<l>*                                 stop()</l>
+<l>                                is_all_found := false</l>
+<c>                                </c>
+<l>                            endif</l>
+<c>                            </c>
+<l>                        endif</l>
+<c>                        </c>
+<c>                        </c>
+<c>                        </c>
+<l>                    catch (Exception1)</l>
+<c>                        </c>
+<l>                        gen_empty_obj (FindBoxes)</l>
+<c>                        </c>
+<l>                        stop()</l>
+<c>                        </c>
+<l>                    endtry  </l>
+<c></c>
+<l>endif</l>
+<c></c>
+<l>union1 (MissingBox, NewWorkRegion)</l>
+<c></c>
+<l>erosion_rectangle1 (NewWorkRegion, RegionErosion1, 40, 40)</l>
+<l>dilation_rectangle1 (RegionErosion1, NewWorkRegion, 40, 40)</l>
+<c></c>
+<l> MainDict.RecipeDict.TrainDict.WorkRegion := NewWorkRegion</l>
+<l>SecondDict.RecipeDict.TrainDict.WorkRegion := NewWorkRegion</l>
+<c></c>
+<c></c>
+<l>if(is_all_found)</l>
+<l>    break</l>
+<l>endif</l>
+<c></c>
+<l>* stop()</l>
+<c></c>
+<l>catch (Exception)</l>
+<l>    OutputDict.Error.General := 'MultiModel: Checking no detected models'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<l>    stop()</l>
+<l>endtry</l>
+<c></c>
+<c></c>
+<l>endfor</l>
+<c></c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<c>*                                                                        GENERATE RESULT DICT</c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<l>if(not is_all_found)  </l>
+<l>    OutputDict.Error.General := 'Not all candidates was found'</l>
+<l>endif</l>
+<c></c>
+<l>OutputDict.InputImage := Result1.InputImage</l>
+<c></c>
+<l>OutputDict.LayerRegion := Result1.LayerRegion</l>
+<c></c>
+<l>OutputDict.FiltersResult := Result1.FiltersResult</l>
+<c></c>
+<l>OutputDict.Candidates := CandidatesResult</l>
+<c></c>
+<l>try</l>
+<c></c>
+<l>if(NCandidates1 &gt; NCandidates2)</l>
+<l>    OutputDict.LayerHigh := Result1.LayerHigh</l>
+<l>else</l>
+<l>    OutputDict.LayerHigh := Result2.LayerHigh</l>
+<l>endif</l>
+<c></c>
+<l>catch(e)</l>
+<l>    OutputDict.LayerHigh := 0</l>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c></c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<c>*                                                                        DISPLAY RESULT</c>
+<c>****************************************************************************************************************************************************************************************************</c>
+<c></c>
+<l>try</l>
+<c>    </c>
+<c>    *Create a window</c>
+<l>    get_image_size (OutputDict.InputImage, Width, Height)</l>
+<l>    open_window(0,0,Width,Height,0,'invisible','',WindowHandleDumpWindow)</l>
+<c>    </c>
+<c>    </c>
+<c>    *Set display settings</c>
+<l>    set_draw (WindowHandleDumpWindow,'margin')</l>
+<l>    set_line_width (WindowHandleDumpWindow,8)</l>
+<l>    set_window_param (WindowHandleDumpWindow, 'display_grid', 'false')</l>
+<l>    set_window_param (WindowHandleDumpWindow, 'flush', 'true')</l>
+<l>    set_part (WindowHandleDumpWindow, 0,0,-2,-2)</l>
+<c>    </c>
+<c>    *display Image</c>
+<l>    disp_obj(OutputDict.InputImage,WindowHandleDumpWindow)</l>
+<c>    </c>
+<c>    </c>
+<c>    *Define order color of box ROIs</c>
+<l>    color_dictionary:=['red', 'green', 'blue', 'yellow', 'cyan', 'magenta', 'pink', 'orange', 'dark olive green','medium slate blue','cadet blue','midnight blue','khaki']</l>
+<l>    ColorIndex:=0</l>
+<c>    </c>
+<l>    get_dict_param (CandidatesResult, 'keys', [], KeysCandidates)</l>
+<c>    </c>
+<l>    for IndexCandidates := 0 to |KeysCandidates| - 1 by 1 </l>
+<c>        </c>
+<l>        if(ColorIndex%13==0)</l>
+<l>            ColorIndex:=0</l>
+<l>        endif</l>
+<c>        </c>
+<c>        *Set Color box</c>
+<l>        set_color(WindowHandleDumpWindow,color_dictionary[ColorIndex])</l>
+<c>        </c>
+<c>        *Display object</c>
+<l>        disp_obj(CandidatesResult.[IndexCandidates].BoxRegion, WindowHandleDumpWindow)</l>
+<c>        </c>
+<l>        set_line_width (WindowHandleDumpWindow,3)</l>
+<c>        </c>
+<l>        disp_obj(CandidatesResult.[IndexCandidates].Cross, WindowHandleDumpWindow)</l>
+<c>        </c>
+<l>        set_line_width (WindowHandleDumpWindow,8)</l>
+<c>        </c>
+<l>        ColorIndex := ColorIndex +1 </l>
+<c>        </c>
+<c>        </c>
+<l>    endfor</l>
+<c>    </c>
+<c>    *Save window as an image</c>
+<l>    dump_window_image(DumpWindowImage,WindowHandleDumpWindow)</l>
+<c>    </c>
+<l>    OutputDict.ImageResult := DumpWindowImage</l>
+<c>    </c>
+<c>    *Destroy window</c>
+<l>    close_window (WindowHandleDumpWindow)</l>
+<c>    </c>
+<l>catch (Ex)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'Error: Generate Image Result'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="vo_find_multi_boxes">
+<parameters>
+<parameter id="InputDict"/>
+<parameter id="OutputDict"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="25.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* RecipeName := 'KH7'</l>
+<l> RecipeName := 'Little-Logo'</l>
+<l>* RecipeName := '5LSTD'</l>
+<l>* RecipeName := 'Marron_1'</l>
+<l>*  RecipeName := '6PROMO780ml'</l>
+<l>RecipeName := '12BOT750ml'</l>
+<l> RecipeName := '12BOT500ml'</l>
+<l>* RecipeName := '12BOT750mlB1'</l>
+<c></c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                             Read Recipe</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<l>read_dict ('D:/GIT/vo-palletizer/PALLETIZER/VOCore.UI/bin/x64/Debug/DATA/RECIPES/' + RecipeName + '.hdict', [], [], DictHandle)</l>
+<l>* read_dict ('C:/Users/LeonardoNahuel/OneDrive - Vision OnLine GmbH/Dokumente - España/Proyectos/KH7/Palletizer_with_Recipe_Manager/Maintenance/Corrective/2025-09-16/6PROMO780ml.hdict', [], [], DictHandle)</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                             Test model</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c></c>
+<l>* RecipeName := 'KH7-Linea'</l>
+<c></c>
+<l>* list_image_files ('C:/Users/LeonardoNahuel/OneDrive - Vision OnLine GmbH/Dokumente - España/Proyectos/KH7/Palletizer_with_Recipe_Manager/CODE/PALLETIZER/HProcedures/Hobj/' + RecipeName, 'hobj', [], ImageFiles) </l>
+<c></c>
+<l>list_image_files ('C:/Users/Leonardo/OneDrive - Vision Online S.L/VO.es_tech - Documentos/Projects/KH7/Palletizer_with_Recipe_Manager/Maintenance/Corrective/2026-08-06/Hobj/malordenadas_hobj', 'hobj', [], ImageFiles) </l>
+<c></c>
+<c></c>
+<c>*Manipulate recipe</c>
+<c></c>
+<l>TrainDict := DictHandle.TrainDict</l>
+<c></c>
+<c></c>
+<c>*Check candidates</c>
+<l>* TrainDict.CheckCandidates := dict{}</l>
+<l>* TrainDict.CheckCandidates.MinScoreCandidate := 0.3</l>
+<l>* TrainDict.CheckCandidates.MinScaleCandidate := 0.5</l>
+<l>* TrainDict.CheckCandidates.ScoreCandidate := 0.7</l>
+<l>* TrainDict.CheckCandidates.ScaleCandidate := 0.8</l>
+<l>* TrainDict.CheckCandidates.MinScoreSM := 0.2</l>
+<l>* TrainDict.CheckCandidates.PercentageBox := 60</l>
+<c></c>
+<c>*GetPose</c>
+<l>* TrainDict.GetPose := dict{}</l>
+<l>* TrainDict.GetPose.ErosionCore := 30</l>
+<c></c>
+<c></c>
+<c></c>
+<c>*Save on dict recipe</c>
+<c></c>
+<l> DictHandle.TrainDict := TrainDict</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>for Index := 0 to |ImageFiles|-1 by 1</l>
+<c>    </c>
+<l>    try</l>
+<l>        InputDict := dict{}</l>
+<l>        InputDict.RecipeDict := DictHandle</l>
+<l>        InputDict.RobotPose := dict{}</l>
+<l>        create_pose (520, 515,3060, 180, -90, 0, 'Rp+T', 'abg', 'point', RobotPose)</l>
+<c>        </c>
+<l>        InputDict.RobotPose.BaseHTool := RobotPose</l>
+<c>        </c>
+<l>        read_pose ('../CALIBRATION/toolHcam.dat', ToolHCam)</l>
+<c>        </c>
+<l>        InputDict.RobotPose.ToolHCam := ToolHCam</l>
+<c>        </c>
+<c>        </c>
+<l>        read_object (ObjectToTest, ImageFiles[Index])</l>
+<l>        select_obj (ObjectToTest, ObjectSelected1, 1)</l>
+<l>        InputDict.DepthMap := ObjectSelected1</l>
+<l>        select_obj (ObjectToTest, ObjectSelected, 2)</l>
+<l>        InputDict.InputImage := ObjectSelected</l>
+<c>        </c>
+<l>        vo_find_boxes (InputDict, OutputDict)</l>
+<c>        </c>
+<l>        gen_empty_obj (i)</l>
+<c>        </c>
+<l>        i := OutputDict.ImageResult</l>
+<c>        </c>
+<l>        dev_display(OutputDict.ImageResult)</l>
+<c>        </c>
+<l>*         wait_seconds(1)</l>
+<c>        </c>
+<l>        stop()</l>
+<l>    catch(Ex)</l>
+<l>        stop()</l>
+<l>    endtry</l>
+<c></c>
+<c>    </c>
+<l>*     write_dict (OutputDict,'./Recipes/KH7-linea.hdict', [], [])</l>
+<c>    </c>
+<l>endfor</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

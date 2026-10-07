@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="vo_create_box_model">
+<interface>
+<ic>
+<par name="InputDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="OutputDict" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*Description of procedure</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c></c>
+<c></c>
+<c>*Init OutputDict as a dict</c>
+<l>OutputDict := dict{}</l>
+<l>OutputDict.TrainDict := InputDict</l>
+<l>OutputDict.Error := dict{}</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                     Check essential params</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c></c>
+<c>*Get Keys of InputDict </c>
+<l>get_dict_param (InputDict, 'keys', [], InputDictKeys)</l>
+<c></c>
+<l>try</l>
+<c>    </c>
+<c>    *Get Image to Train</c>
+<l>    gen_empty_obj (ImageToTrain)</l>
+<l>    ImageToTrain := InputDict.ImageToTrain</l>
+<c>      </c>
+<c>    </c>
+<c>    *Get Box ROI</c>
+<l>    gen_empty_obj (BoxRegion)</l>
+<l>    BoxRegion := InputDict.BoxRegion</l>
+<c>    </c>
+<c>    *Get Work ROI</c>
+<l>    gen_empty_obj (WorkRegion)</l>
+<l>    WorkRegion := InputDict.WorkRegion</l>
+<c>    </c>
+<c>    *Get Box Size</c>
+<l>    BoxSize := InputDict.BoxSize</l>
+<c>        </c>
+<c>    *Get Shape Model ROI</c>
+<l>    gen_empty_obj (ShapeROI)</l>
+<l>    ShapeROI := InputDict.ShapeROI</l>
+<l>    union1 (ShapeROI, ShapeRegion)</l>
+<c>    </c>
+<c>    </c>
+<l>catch (Exception)</l>
+<c></c>
+<l>    OutputDict.Error.General := 'ERROR : Main params'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<c>    </c>
+<l>    return()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                          Get optional settings</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<l>    if(find(InputDictKeys,'GetTopROI')&gt;=0)</l>
+<c>        </c>
+<l>        GetTopROI := InputDict.GetTopROI</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<l>catch (Exception)</l>
+<c>    </c>
+<c></c>
+<l>    OutputDict.Error.General := 'ERROR : getting optional settings'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                          Process Image</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<c>    *check if exist process params</c>
+<l>    if(find(InputDictKeys, 'Filters'))</l>
+<c>        </c>
+<l>        Filters := InputDict.Filters</l>
+<c>        </c>
+<l>        vo_process_image (ImageToTrain, ImageToTrain, Filters, OutProcess)</l>
+<c>        </c>
+<l>        OutputDict.FiltersResult := OutProcess</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    *Reduce shapemodel Domain</c>
+<l>    reduce_domain (ImageToTrain, ShapeRegion, ImageReduced)</l>
+<c>    </c>
+<l>catch(Exception)</l>
+<c></c>
+<l>   OutputDict.Error.General := 'ERROR : Processing Image'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<c>    </c>
+<l>    return ()    </l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                      Create Shape Model ID</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<l>    create_generic_shape_model (ModelID)</l>
+<c>    </c>
+<l>catch (Exception)</l>
+<c></c>
+<l>    OutputDict.Error.General := 'ERROR : Create Shape Model'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                      Add boxRegion as clutter region </c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<c>    </c>
+<c>    *Create a temp region to obtain clutter transformation </c>
+<l>    gen_circle (Circle, 2, 2, 2)</l>
+<c>    </c>
+<l>    set_generic_shape_model_object (Circle, ModelID, 'clutter_region')</l>
+<l>*     set_generic_shape_model_param (ModelID,'use_clutter','false')</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>catch (Exception)</l>
+<c></c>
+<l>    OutputDict.Error.General := 'ERROR : Adding Box Region'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                    Set initial shape model params</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<c>    *Set shape model params</c>
+<l>    if(find(InputDictKeys, 'SMParams'))</l>
+<c>        </c>
+<l>        SMParams := InputDict.SMParams</l>
+<c>        </c>
+<l>        get_dict_param (SMParams, 'keys', [], SMKeys)</l>
+<c>        </c>
+<l>        for Index := 0 to |SMKeys|-1 by 1</l>
+<c>            </c>
+<l>            set_generic_shape_model_param (ModelID, SMKeys[Index], SMParams.[SMKeys[Index]])</l>
+<c>            </c>
+<l>        endfor</l>
+<c>        </c>
+<c>        *Display pyramid levels</c>
+<l>        inspect_shape_model (ImageReduced, ShapeModelImages, ShapeModelRegions, 8, 40)</l>
+<c>        </c>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<l>catch (Exception)</l>
+<c></c>
+<l>    OutputDict.Error.General := 'ERROR : Shape Model Params'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                       Train generic shape model</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<l>    train_generic_shape_model (ImageReduced, ModelID)</l>
+<l>    OutputDict.ModelID := ModelID</l>
+<c>    </c>
+<l>catch (Exception)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'ERROR : Train Image'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<c>    </c>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                       Get Initial Box Rotation</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c></c>
+<l>smallest_rectangle2 (BoxRegion, Row, Column, Phi, Length1, Length2)</l>
+<c></c>
+<l>OutputDict.StartAngle := Phi</l>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                                  Test Image</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>**********************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<l>    reduce_domain (ImageToTrain, BoxRegion, ImageReduced)</l>
+<c>    </c>
+<l>    find_generic_shape_model (ImageReduced, ModelID, MatchResultID, NumMatchResult)</l>
+<c>    </c>
+<l>    if(NumMatchResult&gt;0)</l>
+<c>        </c>
+<l>        get_generic_shape_model_result_object (Objects, MatchResultID, 'best', 'contours')</l>
+<l>        OutputDict.ModelContour := Objects</l>
+<c></c>
+<c>        </c>
+<l>    else</l>
+<c></c>
+<l>        OutputDict.Error.General := 'Warning : No model was detected in testing'</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<l>catch (Exception)</l>
+<c></c>
+<l>    OutputDict.Error.General := 'ERROR : Test Shape model'</l>
+<l>    OutputDict.Error.Exception := Exception</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<l>return ()</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+</body>
+<docu id="vo_create_box_model">
+<chapters lang="en_US">
+<item>Matching</item>
+<item>Shape-Based</item>
+</chapters>
+<parameters>
+<parameter id="InputDict">
+<default_type>integer</default_type>
+<description lang="en_US">Essential Information:
+-Image to Train, Key: 'TrainImage' Value: Image(Iconic)
+-Box ROI, Key: 'BoxROI' Value: [Row1,Column1,Row2,Column2] (Tuple)
+-Shape Model ROI: Key: 'ShapeROI' Value: [Row1,Column1,Row2,Column2] (Tuple)</description>
+<mixed_type>false</mixed_type>
+<sem_type>dict</sem_type>
+<type_list>
+<item>integer</item>
+</type_list>
+</parameter>
+<parameter id="OutputDict"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

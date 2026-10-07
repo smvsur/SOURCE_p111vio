@@ -1,0 +1,1046 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="vo_find_boxes">
+<interface>
+<ic>
+<par name="InputDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="OutputDict" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*</c>
+<c>*</c>
+<c>*</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<l>OutputDict := dict{}</l>
+<l>OutputDict.Error := dict{}</l>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        CHECK MAIN PARAMS</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<l>try</l>
+<c>    </c>
+<c>    *Get Input Image</c>
+<l>    gen_empty_obj (InputImage)</l>
+<l>    InputImage := InputDict.InputImage</l>
+<l>    OutputDict.InputImage := InputImage</l>
+<l>    OutputDict.ImageResult := InputImage</l>
+<c>    </c>
+<c>    *Get Input Image 3D</c>
+<l>    gen_empty_obj (DepthMap)</l>
+<l>    DepthMap := InputDict.DepthMap</l>
+<l>    decompose3 (DepthMap, X, Y, Z)</l>
+<c>    </c>
+<c>    *Check main params on RecipeDict</c>
+<l>    RecipeDict := InputDict.RecipeDict</l>
+<c>    </c>
+<l>    TrainDict := RecipeDict.TrainDict</l>
+<c>    </c>
+<c>    *Get work region</c>
+<l>    WorkRegion := TrainDict.WorkRegion</l>
+<c>    </c>
+<c>    </c>
+<c>    *Get box region</c>
+<l>    BoxRegion := TrainDict.BoxRegion</l>
+<c>    </c>
+<c>    *Real box size</c>
+<l>    BoxSize := TrainDict.BoxSize</l>
+<c>    </c>
+<c>    *Check if there is a realHight from TCP </c>
+<l>    get_dict_param (InputDict, 'keys', [], InputDictKeys)</l>
+<l>    if(find(InputDictKeys, 'RealHeight') &gt;= 0)</l>
+<c>        </c>
+<l>        BoxSize.High := InputDict.RealHeight</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    *Get Model ID</c>
+<l>    ModelID := RecipeDict.ModelID</l>
+<c>    </c>
+<c>    </c>
+<l>    get_dict_param (TrainDict, 'keys', [], TrainDictKeys)</l>
+<c>    </c>
+<l>    StartAngle := RecipeDict.StartAngle</l>
+<c>    </c>
+<c>    </c>
+<c>    *Pose robot params</c>
+<l>    RobotPoseDict := InputDict.RobotPose</l>
+<c>    </c>
+<l>catch(Ex)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'ERROR : Main params'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        GET Z TOP Layer REGION</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<c>    ********************************</c>
+<c>    *Init default values</c>
+<c>    *********************************</c>
+<c>    </c>
+<c>    *Min area to consider a correct top region</c>
+<l>    region_features (BoxRegion, 'area', MinArea)</l>
+<c>    </c>
+<l>    MinArea := MinArea/3</l>
+<c>    </c>
+<c>    *DeltaZ used to determine the steps needed to go down to find a complete layer</c>
+<l>    DeltaZ := BoxSize.High / 2.5</l>
+<c></c>
+<c>    </c>
+<c>    *Max compactness of the region to consider it a correct top region</c>
+<l>    Maxcompactness := 4.5</l>
+<c>    </c>
+<c>    *Min Rectangularity of the region to consider it a correct top region</c>
+<l>    MinRectangularity := 0.8</l>
+<c>    </c>
+<c>    *Dilate final region</c>
+<l>    DilationRect := 10</l>
+<c>    </c>
+<c>    ********************************</c>
+<c>    * GET DICT PARAMS (optional)</c>
+<c>    ********************************</c>
+<l>    if(find(TrainDictKeys,'GetTopROI')&gt;=0)</l>
+<c>        </c>
+<l>        GetTopDict := TrainDict.GetTopROI</l>
+<c>        </c>
+<c>        </c>
+<l>        get_dict_param (GetTopDict, 'keys', [], GetTopDictKeys)</l>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'MinArea')&gt;=0)</l>
+<l>            MinArea := GetTopDict.MinArea</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'DeltaZ')&gt;=0)</l>
+<l>            DeltaZ := GetTopDict.DeltaZ</l>
+<c>            </c>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'Maxcompactness')&gt;=0)</l>
+<l>            Maxcompactness := GetTopDict.Maxcompactness</l>
+<l>        endif</l>
+<c>        </c>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'MinRectangularity')&gt;=0)</l>
+<l>            MinRectangularity := GetTopDict.MinRectangularity</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'DilationRect')&gt;=0)</l>
+<l>            DilationRect := GetTopDict.DilationRect</l>
+<l>        endif</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<l>     decompose3(InputDict.DepthMap,X,Y,Z)</l>
+<c>    </c>
+<c>    </c>
+<c>    **********************</c>
+<c>    *get pallet region </c>
+<c>    **********************</c>
+<l>    WorkRegion := InputDict.RecipeDict.TrainDict.WorkRegion</l>
+<c>    </c>
+<l>    DepthMap := InputDict.DepthMap</l>
+<c>    </c>
+<l>    Palet_Width := 1200</l>
+<l>    Palet_Large := 1300</l>
+<c>    </c>
+<l>    vo_define_palet (DepthMap, WorkRegion, WorkRegion, Palet_Large, Palet_Width)</l>
+<c>    </c>
+<l>    dilation_rectangle1 (WorkRegion, RegionDilation, 20, 20)</l>
+<l>    fill_up (RegionDilation, WorkRegion)</l>
+<c>       </c>
+<c>    </c>
+<c>    *******************************</c>
+<c>    * Get top Z layer procedure</c>
+<c>    *******************************</c>
+<c>    </c>
+<l>    get_top_Z_work_region (Z, WorkRegion, LayerRegion, DeltaZ, MinArea, MinRectangularity, Maxcompactness)</l>
+<c>    </c>
+<c>    ********************************</c>
+<c>    * Process region</c>
+<c>    ********************************</c>
+<l>    dilation_rectangle1 (LayerRegion, RegionDilation, DilationRect, DilationRect)</l>
+<l>    fill_up (RegionDilation, RegionFillUp)</l>
+<l>    union1 (RegionFillUp, TopZRegion)</l>
+<c>    </c>
+<l>    OutputDict.LayerRegion := TopZRegion</l>
+<c>    </c>
+<c>    </c>
+<l>catch(Ex)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'Error: Get top Z layer region'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        APPLY FILTERS</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<l>try</l>
+<l>    gen_empty_obj(FindImage)</l>
+<l>    FilteredImage := InputImage</l>
+<c>    </c>
+<c>    *check if exist process params</c>
+<l>    if(find(TrainDictKeys,'Filters')&gt;=0)</l>
+<c>        </c>
+<l>        FiltersDict := TrainDict.Filters</l>
+<c>        </c>
+<l>        vo_process_image (InputImage, FilteredImage, FiltersDict, OutProcess)</l>
+<c>        </c>
+<l>        OutputDict.FiltersResult := OutProcess</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    *reduce_domain to find only candidates on the top layer</c>
+<l>    reduce_domain(FilteredImage,TopZRegion, FindImage)</l>
+<c>    </c>
+<l>catch(Ex)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'Error: Filtering image'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        FIND CANDIDATES</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<l>try</l>
+<c>    </c>
+<c>    ***********************</c>
+<c>    * Init default params</c>
+<c>    ***********************</c>
+<c>    </c>
+<c>    *Found boxes</c>
+<l>    gen_empty_obj (FindBoxes)</l>
+<c>    </c>
+<c>    *Best segmentation boxes </c>
+<l>    gen_empty_obj (BestSegmentation)</l>
+<c>    </c>
+<c>    *Dict to save all candidate info</c>
+<l>    CandidatesResultDict := dict{}</l>
+<c>    </c>
+<c>    *Best segmentation dict</c>
+<l>    BestCandidatesResultDict := dict{}</l>
+<c>    </c>
+<c>    *min score of the detected candidate</c>
+<l>    MinScoreCandidate := 0.4</l>
+<c>    </c>
+<c>    *Min scale apllyed on the shape model</c>
+<l>    MinScaleCandidate:=0.5</l>
+<c>    </c>
+<c>    *Initial score for detected candidates</c>
+<l>    ScoreCandidate := 0.8</l>
+<c>    </c>
+<c>    *Initial scale for detected candidates</c>
+<l>    ScaleCandidate := 0.8</l>
+<c>    </c>
+<c>    *Get trained shape model min score</c>
+<l>    get_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
+<l>    tempScoreSM := scoreSM</l>
+<c>    </c>
+<c>    *Min score used on ModleID shape model</c>
+<l>    MinScoreSM := scoreSM </l>
+<c>    </c>
+<c>    *Percentage of the box to determine if there is an undetected box</c>
+<l>    PercentageBox := 65</l>
+<c>    </c>
+<c>    *How to order detected candidates</c>
+<l>    OrderType := 'mY_mX'</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    ***********************</c>
+<c>    *Get dict params</c>
+<c>    ***********************</c>
+<c>    </c>
+<l>    if(find(TrainDictKeys,'CheckCandidates')&gt;=0)</l>
+<c>        </c>
+<l>        CheckCandidatesDict := TrainDict.CheckCandidates</l>
+<c>        </c>
+<l>        get_dict_param (CheckCandidatesDict, 'keys', [], CheckCandidatesDictKeys)</l>
+<c>        </c>
+<l>        if(find(CheckCandidatesDictKeys,'MinScoreCandidate')&gt;=0)</l>
+<l>            MinScoreCandidate := CheckCandidatesDict.MinScoreCandidate</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(CheckCandidatesDictKeys,'MinScaleCandidate')&gt;=0)</l>
+<l>            MinScaleCandidate := CheckCandidatesDict.MinScaleCandidate</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(CheckCandidatesDictKeys,'ScoreCandidate')&gt;=0)</l>
+<l>            ScoreCandidate := CheckCandidatesDict.ScoreCandidate</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(CheckCandidatesDictKeys,'ScaleCandidate')&gt;=0)</l>
+<l>            ScaleCandidate := CheckCandidatesDict.ScaleCandidate</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(CheckCandidatesDictKeys,'MinScoreSM')&gt;=0)</l>
+<l>            MinScoreSM := CheckCandidatesDict.MinScoreSM</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(CheckCandidatesDictKeys,'PercentageBox')&gt;=0)</l>
+<l>            PercentageBox := CheckCandidatesDict.PercentageBox</l>
+<l>        endif</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    *Order candidates </c>
+<l>    if(find(TrainDictKeys,'OrderCandidates')&gt;=0)</l>
+<c>        </c>
+<l>        OrderCandidatesDict := TrainDict.OrderCandidates</l>
+<c>        </c>
+<l>        get_dict_param (OrderCandidatesDict, 'keys', [], OrderCandidatesDictKeys)</l>
+<c>        </c>
+<l>        if(find(GetTopDictKeys,'OrderType')&gt;=0)</l>
+<l>            OrderType := OrderCandidatesDict.MinScoreCandidate</l>
+<l>        endif</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    *****************************************************************************************</c>
+<c>    * Loop to reduce min score on shape model to find more candidates</c>
+<c>    *****************************************************************************************</c>
+<c>    </c>
+<c>    *Flag to know if all candidate were found</c>
+<l>    is_all_found := false</l>
+<c>    </c>
+<c>    *variable used to save the best segmentatio num boxes</c>
+<l>    numBoxes := 0</l>
+<c>    </c>
+<l>    tempScoreCandidate := ScoreCandidate</l>
+<c>    </c>
+<l>    while ( not is_all_found and tempScoreSM &gt;= MinScoreSM)</l>
+<c>        </c>
+<l>        ScoreCandidate := tempScoreCandidate</l>
+<c>        </c>
+<c>        *************************************</c>
+<c>        * Find candidates </c>
+<c>        **************************************</c>
+<c>        </c>
+<l>        find_generic_shape_model (FindImage, ModelID, MatchResultID, NumMatchResult)</l>
+<c>        </c>
+<l>        if(NumMatchResult &gt; 0)</l>
+<l>            get_generic_shape_model_result_object (Objects, MatchResultID, 'all', 'contours')</l>
+<c>            </c>
+<c>            *Determine if all boxes were found</c>
+<l>            while (not is_all_found and ScoreCandidate &gt;= MinScoreCandidate)</l>
+<c>                </c>
+<c>                *Reset candidates dict</c>
+<l>                CandidatesResultDict := dict{}</l>
+<c>                </c>
+<l>                Score:=[]</l>
+<l>                gen_empty_obj (FindBoxes)</l>
+<c>                </c>
+<l>                NumCandidate := 0</l>
+<c>                </c>
+<c>                *Get the best score candidate</c>
+<l>                for IndexCandidate := 0 to NumMatchResult-1 by 1</l>
+<c>                    </c>
+<l>                    get_handle_tuple(MatchResultID,IndexCandidate, Tuple)</l>
+<l>                    get_handle_tuple(Tuple,'score',ScoreData)</l>
+<l>                    get_handle_tuple(Tuple,'scale_row',ScaleRowData)</l>
+<l>                    get_handle_tuple(Tuple,'scale_column',ScaleColumnData)</l>
+<c>                    </c>
+<c>                    *Check if the models have the correct score and scale values</c>
+<l>                    if (ScoreData&gt;=ScoreCandidate and ScaleRowData&gt;=ScaleCandidate and ScaleColumnData&gt;=ScaleCandidate)</l>
+<c>                        </c>
+<c>                        *Save score values</c>
+<l>                        tuple_concat (Score,ScoreData,Score)</l>
+<c>                        </c>
+<c>                        *Get transformation pose to move boxregion</c>
+<l>                        get_handle_tuple(Tuple,'clutter_hom_mat_2d',Data)</l>
+<c>                        </c>
+<l>                        get_handle_tuple(Tuple,'angle', AngleData)</l>
+<l>*                         get_handle_tuple(Tuple,'column',ColumnData)</l>
+<c>                        </c>
+<c>                        </c>
+<c>                        *Translate box region </c>
+<l>                        affine_trans_region (BoxRegion, Box, Data, 'nearest_neighbor')</l>
+<c>                        </c>
+<c>                        *Save box region as detected boxes </c>
+<l>                        concat_obj (FindBoxes,Box,FindBoxes)</l>
+<c>                        </c>
+<l>                        get_generic_shape_model_result_object (CandidateContour, MatchResultID, IndexCandidate, 'contours')</l>
+<c>                        </c>
+<c>                        </c>
+<c>                        *Save candidate to dict</c>
+<l>                        CandidatesResultDict.[NumCandidate] := dict{}</l>
+<l>                        CandidatesResultDict.[NumCandidate].Score := ScoreData</l>
+<l>                        CandidatesResultDict.[NumCandidate].ScaleRow := ScaleRowData</l>
+<l>                        CandidatesResultDict.[NumCandidate].ScaleColumn := ScaleColumnData</l>
+<l>                        CandidatesResultDict.[NumCandidate].BoxRegion := Box</l>
+<l>                        CandidatesResultDict.[NumCandidate].Contour := CandidateContour</l>
+<l>                        CandidatesResultDict.[NumCandidate].Angle := AngleData</l>
+<c>                        </c>
+<c>                        </c>
+<l>                        NumCandidate := NumCandidate + 1</l>
+<c>                        </c>
+<l>                    else</l>
+<l>                        noCandidate := 0    </l>
+<l>                    endif</l>
+<c>                    </c>
+<l>                endfor</l>
+<c>                </c>
+<c>                </c>
+<l>                count_obj (FindBoxes,BoxesNumber)</l>
+<c>                </c>
+<l>                if (BoxesNumber&gt;=1)</l>
+<c>                    </c>
+<c>                    ********************************</c>
+<c>                    * Get best candidate box region</c>
+<c>                    *********************************</c>
+<c>                    </c>
+<l>                    get_generic_shape_model_result (MatchResultID,'best','clutter_hom_mat_2d', Best_hom_mat_2d)</l>
+<l>                    affine_trans_region (BoxRegion, BestBox, Best_hom_mat_2d, 'nearest_neighbor')</l>
+<c>                    </c>
+<l>                    if(BoxesNumber&gt;=2)</l>
+<c>                        </c>
+<c>                        </c>
+<c>                        ****************************************************************</c>
+<c>                        *Check if there are more boxes detected than actually exist.</c>
+<c>                        ***************************************************************</c>
+<l>                        try</l>
+<c>                            </c>
+<c>                            *Use the best box area value to define how match min_intersection_area is</c>
+<c>                            </c>
+<l>                            region_features (BestBox,'area', BestBoxArea)</l>
+<c>                            </c>
+<l>                            min_intersection_area:=BestBoxArea/5     //Set as a param</l>
+<c></c>
+<c>                            </c>
+<l>                            gen_empty_obj (FindBoxesTemp)</l>
+<l>                            CandidatesTemp := dict{}</l>
+<l>                            tempNumCandidate := 0</l>
+<c>                            </c>
+<l>                            for CheckIndex := 0 to BoxesNumber - 1 by 1</l>
+<c>                                </c>
+<l>                                WorkObject := CandidatesResultDict.[CheckIndex].BoxRegion</l>
+<c>                                </c>
+<l>                                region_features (WorkObject, 'area', WorkObjectArea)</l>
+<c>                                </c>
+<l>                                min_intersection_area:=WorkObjectArea/5</l>
+<c>                                </c>
+<l>                                is_ok:=true</l>
+<c>                                </c>
+<c>                                *If there is any box intersection with the current box (WorkObject), remove it from FindBoxes if its score is less than that of the intersecting box</c>
+<l>                                for CheckIndex2 := 0 to BoxesNumber - 1 by 1</l>
+<c>                                    </c>
+<l>                                    if (CheckIndex != CheckIndex2)                                  //Used to don't analize same box</l>
+<l>*                                         select_obj (FindBoxes,ObjectToCheck,CheckIndex2)</l>
+<l>                                        ObjectToCheck := CandidatesResultDict.[CheckIndex2].BoxRegion</l>
+<c></c>
+<l>                                        intersection (WorkObject,ObjectToCheck, RegionIntersection)</l>
+<c>                                        </c>
+<l>                                        union1 (RegionIntersection,RegionIntersection)</l>
+<c>                                        </c>
+<l>                                        region_features (RegionIntersection, 'area', Value)</l>
+<c>                                        </c>
+<c>                                        </c>
+<c>                                        </c>
+<l>                                        if (Value&gt;min_intersection_area)</l>
+<c>                                            </c>
+<c>                                            *Check better score</c>
+<c>                                            </c>
+<l>                                            if (Score[CheckIndex]&lt;Score[CheckIndex2])</l>
+<l>                                                is_ok:=false</l>
+<l>*                                                 stop()</l>
+<l>                                            endif</l>
+<l>                                        endif</l>
+<c>                                        </c>
+<c>                                        *Check if the box is outside of the Layer region</c>
+<l>                                        difference (WorkObject, TopZRegion, RegionOutTopRegion)</l>
+<l>                                        region_features (RegionOutTopRegion, 'area', AreaOutTopRegion)</l>
+<l>                                        if(AreaOutTopRegion &gt; min_intersection_area)</l>
+<c>                                            </c>
+<l>                                            is_ok := false</l>
+<c>                                            </c>
+<l>                                        endif</l>
+<c>                                        </c>
+<l>                                        if(not is_ok)</l>
+<l>                                            break</l>
+<l>                                        endif</l>
+<c>                                        </c>
+<l>                                    endif   </l>
+<l>                                endfor</l>
+<c>                                </c>
+<l>                                if (is_ok)</l>
+<c>                                    </c>
+<l>                                    CandidatesTemp.[tempNumCandidate] := CandidatesResultDict.[CheckIndex]</l>
+<l>*                                     concat_obj (FindBoxesTemp,WorkObject,FindBoxesTemp)</l>
+<l>                                    tempNumCandidate := tempNumCandidate + 1</l>
+<l>                                endif</l>
+<c>                                </c>
+<l>                            endfor</l>
+<c>                            </c>
+<l>                        catch (Ex)</l>
+<c>                            </c>
+<l>                            set_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
+<l>                            OutputDict.Error.General := 'Checking if there are collision boxes'</l>
+<l>                            OutputDict.Error.Exception := Ex</l>
+<l>                            stop()</l>
+<l>                            return ()</l>
+<c>                            </c>
+<l>                        endtry</l>
+<c>                        </c>
+<l>                        try</l>
+<c>                            </c>
+<c>                            *Set a box order</c>
+<l>                            vo_order_boxes (CandidatesTemp, OrderType, CandidatesResultDict)</l>
+<c>                            </c>
+<c>                            *Get all boxes region </c>
+<l>                            get_dict_param (CandidatesResultDict, 'keys', [], keysCandidates)</l>
+<c>                            </c>
+<l>                            gen_empty_obj (TempFindBoxes)</l>
+<c>                            </c>
+<l>                            for IndexCandidates := 0 to |keysCandidates|-1 by 1</l>
+<c>                                </c>
+<l>                                concat_obj (TempFindBoxes, CandidatesResultDict.[IndexCandidates].BoxRegion, TempFindBoxes)</l>
+<c>                                </c>
+<l>                            endfor</l>
+<c>                            </c>
+<l>                            FindBoxes := TempFindBoxes</l>
+<c></c>
+<c>                            </c>
+<l>                        catch (Ex)</l>
+<c>                            </c>
+<l>                            set_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
+<l>                            OutputDict.Error.General := 'Arranging Boxes'</l>
+<l>                            OutputDict.Error.Exception := Ex</l>
+<l>                            stop()</l>
+<l>                            return ()</l>
+<c>                            </c>
+<l>                        endtry</l>
+<c>                        </c>
+<l>                    endif</l>
+<c>                    </c>
+<c>                    </c>
+<c>                    ****************************************************************************************************</c>
+<c>                    *Check if all boxes was found</c>
+<c>                    ***************************************************************************************************</c>
+<c>                    </c>
+<l>                    region_features (BestBox,'area', BestBoxArea)</l>
+<c>                    </c>
+<c>                    *get union of all region boxes </c>
+<l>                    union1(FindBoxes, AllBoxes)</l>
+<c>                    </c>
+<l>                    OutputDict.MissingBox := dict{}</l>
+<c>                    </c>
+<l>                    try</l>
+<c>                        </c>
+<c>                        </c>
+<c>                        *get difference to find if some box wasn't found </c>
+<l>                        difference(RegionDilation,AllBoxes, RegionDifference)</l>
+<c>                        </c>
+<l>                        erosion_rectangle1 (RegionDifference, RegionErosion, 20, 20)</l>
+<c>                        </c>
+<l>                        connection (RegionErosion, ConnectedRegions)</l>
+<c>                        </c>
+<l>                        dilation_rectangle1 (ConnectedRegions, RegionDilation, 20, 20)</l>
+<c>                        </c>
+<l>                        select_shape (RegionDilation, SelectedRegions, 'area', 'and', 1000, 999999999999)</l>
+<c>                        </c>
+<l>                        region_features (SelectedRegions, 'compactness', Value1)</l>
+<c>                        </c>
+<l>                        select_shape (SelectedRegions, MissingBox, 'compactness', 'and', 0, 5)</l>
+<c>                        </c>
+<l>                        region_features (MissingBox, 'area', diffArea)</l>
+<c>                        </c>
+<l>                        is_all_found := true</l>
+<c>                        </c>
+<l>                        if(|diffArea|)</l>
+<c>                            </c>
+<l>                            tuple_max (diffArea,MaxArea)</l>
+<c>                            </c>
+<c>                            </c>
+<l>                            OutputDict.MissingBox.Region := MissingBox</l>
+<l>                            OutputDict.MissingBox.Area := MaxArea</l>
+<c>                            </c>
+<c>                            </c>
+<l>                            if(MaxArea &gt;= BestBoxArea * (PercentageBox/100.0))</l>
+<c>                                </c>
+<l>                                count_obj (FindBoxes, NumFindBoxes)</l>
+<c>                                </c>
+<l>                                if(NumFindBoxes &gt; numBoxes)</l>
+<c>                                    </c>
+<l>                                    BestSegmentation := FindBoxes</l>
+<l>                                    numBoxes := NumFindBoxes</l>
+<c>                                    </c>
+<l>                                    BestCandidatesResultDict := CandidatesResultDict</l>
+<c>                                    </c>
+<l>                                endif</l>
+<c>                                </c>
+<l>                                gen_empty_obj (FindBoxes)</l>
+<l>                                ScoreCandidate:= ScoreCandidate - 0.1                                       </l>
+<l>                                ScaleCandidate:= ScaleCandidate - 0.1</l>
+<c>                                </c>
+<l>*                                 stop()</l>
+<l>                                is_all_found := false</l>
+<c>                                </c>
+<l>                            endif</l>
+<c>                            </c>
+<l>                        endif</l>
+<c>                        </c>
+<c>                        </c>
+<c>                        </c>
+<l>                    catch (Exception1)</l>
+<c>                        </c>
+<l>                        gen_empty_obj (FindBoxes)</l>
+<l>                        ScoreCandidate:= ScoreCandidate - 0.1                                       </l>
+<l>                        ScaleCandidate:= ScaleCandidate - 0.1</l>
+<c>                        </c>
+<l>                        stop()</l>
+<c>                        </c>
+<l>                    endtry  </l>
+<c>                    </c>
+<l>                else</l>
+<l>                    ScoreCandidate:= ScoreCandidate - 0.1                                       </l>
+<l>                    ScaleCandidate:= ScaleCandidate - 0.1</l>
+<c>                    </c>
+<l>                endif</l>
+<c>                </c>
+<l>            endwhile</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(is_all_found)</l>
+<l>            break</l>
+<l>        endif</l>
+<c>        </c>
+<l>        tempScoreSM := tempScoreSM - 0.1</l>
+<l>        set_generic_shape_model_param (ModelID, 'min_score', tempScoreSM)</l>
+<c>        </c>
+<l>    endwhile</l>
+<c>    </c>
+<l>    set_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
+<c>    </c>
+<l>    if(not is_all_found)</l>
+<c>        </c>
+<l>        FindBoxes := BestSegmentation</l>
+<c>        </c>
+<l>        CandidatesResultDict := BestCandidatesResultDict</l>
+<c>        </c>
+<l>        OutputDict.Error.General := 'Not all candidates was found '</l>
+<c>        </c>
+<l>        stop()</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>catch(Ex)</l>
+<c>    </c>
+<l>    set_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'Error: Finding candidates'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        GET BOXES POSE</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<l>try</l>
+<c>    </c>
+<c>    ***********************</c>
+<c>    * Init default params</c>
+<c>    ***********************</c>
+<c>    </c>
+<c>    *Use the core pointcloud to obtain the pose</c>
+<l>    ErosionCore := 30</l>
+<c>    </c>
+<c>    *Apply specific offset </c>
+<l>    OffsetX := 0</l>
+<l>    OffsetY := 0</l>
+<l>    OffsetZ := 0</l>
+<l>    OffsetAngle := 0</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<c>    ***********************</c>
+<c>    *Get dict params</c>
+<c>    ***********************</c>
+<c>    </c>
+<l>    if(find(TrainDictKeys,'GetPose')&gt;=0)</l>
+<c>        </c>
+<l>        GetPoseDict := TrainDict.GetPose</l>
+<c>        </c>
+<l>        get_dict_param (GetPoseDict, 'keys', [], GetPoseDictKeys)</l>
+<c>        </c>
+<l>        if(find(GetPoseDictKeys,'ErosionCore')&gt;=0)</l>
+<l>            ErosionCore := GetPoseDict.ErosionCore</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetPoseDictKeys,'OffsetX')&gt;=0)</l>
+<l>            OffsetX := GetPoseDict.OffsetX</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetPoseDictKeys,'OffsetY')&gt;=0)</l>
+<l>            OffsetY := GetPoseDict.OffsetY</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetPoseDictKeys,'OffsetZ')&gt;=0)</l>
+<l>            OffsetZ := GetPoseDict.OffsetZ</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(find(GetPoseDictKeys,'OffsetAngle')&gt;=0)</l>
+<l>            OffsetAngle := GetPoseDict.OffsetAngle</l>
+<l>        endif</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    *****************************</c>
+<c>    * Get candidates position</c>
+<c>    *****************************</c>
+<c>    </c>
+<c>    </c>
+<l>    gen_empty_obj (CrossContainer)</l>
+<l>    count_obj (FindBoxes,BoxesNumber)</l>
+<l>    for Index := 0 to BoxesNumber - 1 by 1</l>
+<c>        </c>
+<l>        gen_empty_obj (Box)</l>
+<l>        Box := CandidatesResultDict.[Index].BoxRegion</l>
+<c>        </c>
+<l>        erosion_rectangle1 (Box, ErosionBox, ErosionCore, ErosionCore)</l>
+<c>        </c>
+<l>        Get_XYZ (X, Y, Z, ErosionBox,PoseX, PoseY, PoseZ)</l>
+<c>        </c>
+<l>        smallest_rectangle2 (Box, BoxRow, BoxColumn, Phi, Length12, Length22)</l>
+<c>        </c>
+<l>        BoxPhi := CandidatesResultDict.[Index].Angle</l>
+<c>        </c>
+<c>        </c>
+<l>        Angle:=deg(BoxPhi + StartAngle)</l>
+<c>        </c>
+<c>        *Put Rx and Ry at zero because it isn't used and could generate Rz changes in Pose transformation </c>
+<l>        Pose := []</l>
+<l>        Pose[0]:=PoseX + OffsetX</l>
+<l>        Pose[1]:=PoseY + OffsetY</l>
+<l>        Pose[2]:=PoseZ + OffsetZ</l>
+<l>        Pose[3]:=0</l>
+<l>        Pose[4]:=0</l>
+<l>        Pose[5]:=-Angle + OffsetAngle</l>
+<l>        Pose[6]:=2</l>
+<c>        </c>
+<l>        CandidatesResultDict.[Index].CamHobj := Pose</l>
+<c>        </c>
+<c>        *Gen Cross center point</c>
+<l>        gen_cross_contour_xld (Cross,BoxRow,BoxColumn,10,BoxPhi)</l>
+<c>        </c>
+<l>        CandidatesResultDict.[Index].Cross := Cross</l>
+<c>        </c>
+<l>    endfor</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>catch(Ex)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'Error: Getting Pose'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        GET ROBOT POSE</c>
+<c>*********************************************************************************************************************************************************************************************    </c>
+<l>try</l>
+<c>    </c>
+<c>    *Create default poses </c>
+<l>    create_pose (0, 0, 0, 0, 0, 0, 'Rp+T', 'abg', 'point', ToolHCam)</l>
+<l>    create_pose (0, 0, 0, 0, 0, 0, 'Rp+T', 'abg', 'point', BaseHTool)</l>
+<c>    </c>
+<l>    get_dict_param (RobotPoseDict, 'keys', [], RobotPoseDictKeys)</l>
+<c>    </c>
+<l>    if(find(RobotPoseDictKeys,'ToolHCam')&gt;=0)</l>
+<l>        ToolHCam := RobotPoseDict.ToolHCam</l>
+<l>    endif</l>
+<c>    </c>
+<l>    if(find(RobotPoseDictKeys,'BaseHTool')&gt;=0)</l>
+<l>        BaseHTool := RobotPoseDict.BaseHTool</l>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    *Apply transformation for all candidates</c>
+<l>    count_obj (FindBoxes,BoxesNumber)</l>
+<l>    for Index := 0 to BoxesNumber - 1 by 1</l>
+<c>        </c>
+<l>        CamHobj := CandidatesResultDict.[Index].CamHobj</l>
+<c>        </c>
+<l>        create_pose (BaseHTool[0], BaseHTool[1], BaseHTool[2], BaseHTool[3], BaseHTool[4], BaseHTool[5], 'Rp+T', 'abg', 'point', Pose1)</l>
+<c>        </c>
+<l>        pose_compose (Pose1, ToolHCam, BaseHCam)</l>
+<c>       </c>
+<l>        pose_compose (BaseHCam, CamHobj, BaseHObj)</l>
+<c>        </c>
+<l>        Angle := BaseHObj[5] +90</l>
+<c>                </c>
+<l>        if(Angle&gt;360)</l>
+<l>            Angle := Angle -360</l>
+<l>        endif</l>
+<c>        </c>
+<l>        if(Angle &gt; 180)</l>
+<l>            Angle := Angle - 180</l>
+<l>        elseif(Angle &lt; -180)</l>
+<l>            Angle := Angle + 180</l>
+<l>        endif</l>
+<c></c>
+<l>        BaseHObj[5] := Angle</l>
+<c>        </c>
+<c>        </c>
+<l>        CandidatesResultDict.[Index].BaseHObj := BaseHObj</l>
+<c>        </c>
+<l>    endfor</l>
+<c>    </c>
+<l>catch(Ex)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'Error: getting robot pose'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c>*Save results on outputdict</c>
+<l>OutputDict.Candidates := CandidatesResultDict</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        REINFORCE Z VALUE</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<l>try</l>
+<c>    </c>
+<l>    ZReinforce := 0</l>
+<c>    </c>
+<l>    get_dict_param (RobotPoseDict, 'keys', [], RobotPoseDictKeys)</l>
+<c>    </c>
+<l>    if(find(RobotPoseDictKeys,'ZReinforce')&gt;=0)</l>
+<l>        ZReinforce := RobotPoseDict.ZReinforce</l>
+<l>    endif    </l>
+<c></c>
+<l>    if(ZReinforce != 0)</l>
+<c>        </c>
+<l>        count_obj (FindBoxes,BoxesNumber)</l>
+<c>        </c>
+<l>        if(BoxesNumber&gt;0)</l>
+<c>            </c>
+<c>            </c>
+<l>            NumLevels := 20</l>
+<l>            LayerHigh := 0</l>
+<l>            BoxHigh := BoxSize.High</l>
+<c>            </c>
+<c>            *Get all Z position from all candidates and get the mean value </c>
+<l>            ZPoses := []</l>
+<c>            </c>
+<l>            for Index := 0 to BoxesNumber - 1 by 1</l>
+<c>                </c>
+<l>                ZPoses[Index] := CandidatesResultDict.[Index].BaseHObj[2]</l>
+<c>                </c>
+<l>            endfor</l>
+<c>            </c>
+<l>            tuple_mean (ZPoses, ZMean)</l>
+<c>            </c>
+<l>            lessValue := 999999</l>
+<c>            </c>
+<c>            *Find the level that correspond with the mean boxes value </c>
+<l>            for IndexLevel := 0 to NumLevels by 1</l>
+<c>                </c>
+<l>                HighLevel := BoxHigh * IndexLevel + ZReinforce </l>
+<c>                </c>
+<l>                diffHeight := abs(HighLevel - ZMean)</l>
+<c>                </c>
+<l>                if(lessValue &gt; diffHeight)</l>
+<c>                    </c>
+<l>                    lessValue := diffHeight</l>
+<l>                    LayerHigh := HighLevel</l>
+<c>                    </c>
+<l>                endif</l>
+<c></c>
+<l>*                 if(ZMean &gt;= HighLevel * 0.88 and ZMean &lt;= HighLevel * 1.2)</l>
+<c>                    </c>
+<l>*                     LayerHigh := HighLevel</l>
+<c>                    </c>
+<l>*                 endif</l>
+<c>                </c>
+<l>            endfor</l>
+<c>            </c>
+<c>            *Save result </c>
+<l>            OutputDict.LayerHigh := LayerHigh</l>
+<c>            </c>
+<l>        endif</l>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<l>catch(Ex)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'Error: reinforce z value'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c>*                                                                        Generate Image Result</c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<l>try</l>
+<c>    </c>
+<c>    *Create a window</c>
+<l>    get_image_size (InputImage, Width, Height)</l>
+<l>    open_window(0,0,Width,Height,0,'invisible','',WindowHandleDumpWindow)</l>
+<c>    </c>
+<c>    </c>
+<c>    *Set display settings</c>
+<l>    set_draw (WindowHandleDumpWindow,'margin')</l>
+<l>    set_line_width (WindowHandleDumpWindow,8)</l>
+<l>    set_window_param (WindowHandleDumpWindow, 'display_grid', 'false')</l>
+<l>    set_window_param (WindowHandleDumpWindow, 'flush', 'true')</l>
+<l>    set_part (WindowHandleDumpWindow, 0,0,-2,-2)</l>
+<c>    </c>
+<c>    *display Image</c>
+<l>    disp_obj(InputImage,WindowHandleDumpWindow)</l>
+<c>    </c>
+<c>    </c>
+<c>    *Define order color of box ROIs</c>
+<l>    color_dictionary:=['red', 'green', 'blue', 'yellow', 'cyan', 'magenta', 'pink', 'orange', 'dark olive green','medium slate blue','cadet blue','midnight blue','khaki']</l>
+<l>    ColorIndex:=0</l>
+<c>    </c>
+<l>    get_dict_param (CandidatesResultDict, 'keys', [], KeysCandidates)</l>
+<c>    </c>
+<l>    for IndexCandidates := 0 to |KeysCandidates| - 1 by 1 </l>
+<c>        </c>
+<l>        if(ColorIndex%13==0)</l>
+<l>            ColorIndex:=0</l>
+<l>        endif</l>
+<c>        </c>
+<c>        *Set Color box</c>
+<l>        set_color(WindowHandleDumpWindow,color_dictionary[ColorIndex])</l>
+<c>        </c>
+<c>        *Display object</c>
+<l>        disp_obj(CandidatesResultDict.[IndexCandidates].BoxRegion, WindowHandleDumpWindow)</l>
+<c>        </c>
+<l>        set_line_width (WindowHandleDumpWindow,3)</l>
+<c>        </c>
+<l>        disp_obj(CandidatesResultDict.[IndexCandidates].Cross, WindowHandleDumpWindow)</l>
+<c>        </c>
+<l>        set_line_width (WindowHandleDumpWindow,8)</l>
+<c>        </c>
+<l>        ColorIndex := ColorIndex +1 </l>
+<c>        </c>
+<c>        </c>
+<l>    endfor</l>
+<c>    </c>
+<c>    *Save window as an image</c>
+<l>    dump_window_image(DumpWindowImage,WindowHandleDumpWindow)</l>
+<c>    </c>
+<l>    OutputDict.ImageResult := DumpWindowImage</l>
+<c>    </c>
+<c>    *Destroy window</c>
+<l>    close_window (WindowHandleDumpWindow)</l>
+<c>    </c>
+<l>catch (Ex)</l>
+<c>    </c>
+<l>    OutputDict.Error.General := 'Error: Generate Image Result'</l>
+<l>    OutputDict.Error.Exception := Ex</l>
+<l>    stop()</l>
+<l>    return ()</l>
+<c>    </c>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************************************************************************************************</c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<l>* stop()</l>
+<c></c>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="vo_find_boxes">
+<parameters>
+<parameter id="InputDict"/>
+<parameter id="OutputDict"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

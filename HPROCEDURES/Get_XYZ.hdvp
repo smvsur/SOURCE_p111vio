@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="Get_XYZ">
+<interface>
+<io>
+<par name="X" base_type="iconic" dimension="0"/>
+<par name="Y" base_type="iconic" dimension="0"/>
+<par name="Z" base_type="iconic" dimension="0"/>
+<par name="Region" base_type="iconic" dimension="0"/>
+</io>
+<oc>
+<par name="PoseX" base_type="ctrl" dimension="0"/>
+<par name="PoseY" base_type="ctrl" dimension="0"/>
+<par name="PoseZ" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>get_region_points(Region, Rows, Columns)</l>
+<c></c>
+<c>*Z position</c>
+<l>scale_image (Z, ZScaled, 1000, 0)</l>
+<l>get_grayval(ZScaled, Rows, Columns, ZValues)</l>
+<l>tuple_max (ZValues, Max)</l>
+<l>gray_histo_range (Region, ZScaled, 1, Max, int(Max), Histo, BinSize)</l>
+<l>tuple_max (Histo, ZIndices)</l>
+<l>tuple_find (Histo, ZIndices, ZHisto)</l>
+<c></c>
+<l>if(|ZHisto|&gt;1)</l>
+<l>    ZHisto := ZHisto[0]</l>
+<l>endif</l>
+<c></c>
+<l>PoseZ := ZHisto / 1000.0</l>
+<c></c>
+<c>*X position</c>
+<l>get_grayval (X, Rows, Columns, XValues)</l>
+<l>tuple_find (XValues, 0, XIndices)</l>
+<l>tuple_remove (XValues, XIndices, XValues)</l>
+<l>tuple_mean (XValues, PoseX)</l>
+<c></c>
+<c>*Y position</c>
+<l>get_grayval (Y, Rows, Columns, YValues)</l>
+<l>tuple_find (YValues, 0, YIndices)</l>
+<l>tuple_remove (YValues, YIndices, YValues)</l>
+<l>tuple_mean (YValues, PoseY)</l>
+<l>return ()</l>
+</body>
+<docu id="Get_XYZ">
+<parameters>
+<parameter id="PoseX"/>
+<parameter id="PoseY"/>
+<parameter id="PoseZ"/>
+<parameter id="Region"/>
+<parameter id="X"/>
+<parameter id="Y"/>
+<parameter id="Z"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

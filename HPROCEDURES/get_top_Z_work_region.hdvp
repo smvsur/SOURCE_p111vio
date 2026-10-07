@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="get_top_Z_work_region">
+<interface>
+<io>
+<par name="Z" base_type="iconic" dimension="0"/>
+<par name="WorkRegion" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="LayerRegion" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="DeltaZ" base_type="ctrl" dimension="0"/>
+<par name="MinArea" base_type="ctrl" dimension="0"/>
+<par name="MinRect" base_type="ctrl" dimension="0"/>
+<par name="MaxComp" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>*Set empty object value to zero </c>
+<l>set_system ('store_empty_region','false')</l>
+<c></c>
+<c></c>
+<l>gen_empty_obj (LayerRegion)</l>
+<c></c>
+<l>reduce_domain (Z, WorkRegion, Z)</l>
+<c></c>
+<l>get_image_size (Z, Width, Height)</l>
+<c></c>
+<l>gen_rectangle1 (MainROI,0,0,Height,Width)</l>
+<c></c>
+<c></c>
+<c></c>
+<c>*Delete points without Z information and the highest points </c>
+<l>min_max_gray(MainROI,Z,0, MinZ, MaxZ, RangeZ)</l>
+<l>threshold(Z,TempMainROI,1,MaxZ)</l>
+<c></c>
+<c>*Find highest Z region </c>
+<l>min_max_gray(TempMainROI, Z, 0, MinZ, MaxZ, RangeZ)</l>
+<l>threshold(Z,LayerRegion,MinZ-DeltaZ,MinZ+DeltaZ)</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c>*Search Z region where coincide with boxes</c>
+<l>is_top_region:=false</l>
+<l>SearchZRegion := TempMainROI</l>
+<l>ZReduced:=Z</l>
+<c></c>
+<l>for Index := 1 to 20 by 1</l>
+<c>    </c>
+<c>    *Delet small region </c>
+<l>    connection(LayerRegion,LayerRegion)</l>
+<l>    select_shape (LayerRegion, SelectedRegions, 'area', 'and', MinArea, Width*Height)</l>
+<l>    count_obj (SelectedRegions, Number)</l>
+<c>    </c>
+<c>    *Check if the regions are inside to the work region</c>
+<l>    gen_empty_obj (RegionIntersection)</l>
+<l>    gen_empty_obj (WorkSelectedRegions)</l>
+<l>    ObjPosition:=1</l>
+<l>    for Index1 := 1 to Number by 1</l>
+<l>        select_obj (SelectedRegions, ObjectSelected, Index1)</l>
+<l>        intersection (WorkRegion,ObjectSelected, RegionIntersection)</l>
+<l>        count_obj (RegionIntersection,Number1)</l>
+<l>        if (Number1&gt;0)</l>
+<l>            insert_obj (WorkSelectedRegions,ObjectSelected, WorkSelectedRegions,ObjPosition)</l>
+<l>            ObjPosition:=ObjPosition+1</l>
+<l>        endif</l>
+<l>    endfor</l>
+<l>    SelectedRegions:=WorkSelectedRegions</l>
+<l>    count_obj (WorkSelectedRegions, Number)</l>
+<c>    </c>
+<c>    *If there is some region with more than MinArea then analyze if that region is a box region</c>
+<l>    RectNumbre:=0</l>
+<l>    AreaNumber:=0</l>
+<l>    BadRegions:=-1</l>
+<l>    InterestRegions:=-1</l>
+<l>    if (Number&gt;0)</l>
+<c>        *If there is a single box, the region has had a big rectangularity value</c>
+<l>        fill_up (WorkSelectedRegions, RegionFillUp)</l>
+<l>        region_features (RegionFillUp, 'rectangularity' , RectValue)</l>
+<l>        tuple_greater_equal_elem (RectValue,MinRect,RectNumbre)</l>
+<c>        </c>
+<c>        *If the region found a group of boxes is possible that the rectangularity is wrong, but the area is more than double</c>
+<l>        region_features (RegionFillUp,'area',AreaValue)</l>
+<l>        tuple_greater_equal_elem (AreaValue,MinArea*2,AreaNumbre)</l>
+<c>        </c>
+<c>        *Analize if the regions have enought information or more threshold are needed</c>
+<l>        region_features (RegionFillUp,  'compactness', CompValue)</l>
+<l>        tuple_less_equal_elem (CompValue, MaxComp, CompNumbre)</l>
+<c>        </c>
+<c>        *Analyze if there are region without rectangularity or the double MinArea and good compactness</c>
+<l>        tuple_or (AreaNumbre,RectNumbre, AnalizeInterestRegions)</l>
+<l>        tuple_and (CompNumbre,AnalizeInterestRegions, AnalizedRegions)</l>
+<l>        tuple_find (AnalizedRegions, 0, BadRegions)</l>
+<l>        tuple_find (AnalizeInterestRegions, 1, InterestRegions)</l>
+<c>        </c>
+<c>        </c>
+<l>    endif</l>
+<c>    </c>
+<c>    </c>
+<c>    </c>
+<l>    if (BadRegions&lt;0 and Number&gt;0)</l>
+<c>        *Top work Z region was founded</c>
+<l>        LayerRegion:= SelectedRegions</l>
+<l>        is_top_region:=true</l>
+<l>        break</l>
+<c>        </c>
+<l>    else </l>
+<c>        *If the expected regions isn't founded, redefine the new region</c>
+<l>        difference (SearchZRegion,LayerRegion,SearchZRegion)</l>
+<l>        reduce_domain (ZReduced,SearchZRegion,ZReduced)</l>
+<l>        min_max_gray(SearchZRegion, ZReduced, 0, NewMinZ, MaxZ, RangeZ)</l>
+<c>        </c>
+<l>        if (InterestRegions&gt;=0)</l>
+<c>            *If we found some interesting region </c>
+<l>            threshold(Z,LayerRegion,MinZ-DeltaZ+100,NewMinZ+DeltaZ/2)      //Used to obtain a bit more ,work region </l>
+<l>        else</l>
+<l>            threshold(Z,LayerRegion,NewMinZ-DeltaZ,NewMinZ+DeltaZ)</l>
+<l>            MinZ:=NewMinZ</l>
+<c>            </c>
+<l>        endif</l>
+<l>    endif </l>
+<c>    </c>
+<l>endfor</l>
+<c></c>
+<l>if (not is_top_region)</l>
+<l>    gen_empty_obj (LayerRegion)</l>
+<c>    </c>
+<l>endif</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="get_top_Z_work_region">
+<parameters>
+<parameter id="DeltaZ">
+<description lang="en_US">Search Z threshold</description>
+</parameter>
+<parameter id="LayerRegion">
+<description lang="en_US">Top work region</description>
+</parameter>
+<parameter id="MaxComp"/>
+<parameter id="MinArea">
+<description lang="en_US">Min work area region</description>
+</parameter>
+<parameter id="MinRect"/>
+<parameter id="WorkRegion"/>
+<parameter id="Z">
+<description lang="en_US">Z image</description>
+<sem_type>image</sem_type>
+</parameter>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

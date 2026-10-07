@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.05.0.0">
+<procedure name="vo_process_image">
+<interface>
+<io>
+<par name="InputImage" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="OutputImage" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="InputDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="OutputDict" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>OutputImage := InputImage</l>
+<l>OutputDict := dict{}</l>
+<c></c>
+<l>get_dict_param (InputDict, 'keys', [], ProcessKeys)</l>
+<c></c>
+<c>*Select channel to train</c>
+<l>if(find(ProcessKeys,'Channel')&gt;=0)</l>
+<l>    if(InputDict.Channel = 4)</l>
+<l>        rgb1_to_gray (OutputImage, OutputImage)</l>
+<l>    else</l>
+<l>        access_channel (OutputImage, OutputImage, InputDict.Channel)</l>
+<l>    endif</l>
+<l>    OutputDict.Channel := OutputImage</l>
+<l>endif</l>
+<c></c>
+<c>*Gray erosion rectangle befor others params</c>
+<l>if(find(ProcessKeys,'ErosionRectBefore')&gt;=0)</l>
+<l>    gray_erosion_rect (OutputImage, OutputImage, InputDict.ErosionRectBefore, InputDict.ErosionRectBefore)</l>
+<l>    OutputDict.ErosionRectBefore := OutputImage</l>
+<l>endif</l>
+<c></c>
+<c>*Gray dilation rectangle befor others params</c>
+<l>if(find(ProcessKeys,'DilationRectBefore')&gt;=0)</l>
+<l>    gray_dilation_rect (OutputImage, OutputImage, InputDict.DilationRectBefore, InputDict.DilationRectBefore)</l>
+<l>    OutputDict.DilationRectBefore := OutputImage</l>
+<l>endif</l>
+<c></c>
+<l>if(find(ProcessKeys,'ScaleRange')&gt;=0)</l>
+<l>    scale_image_range (OutputImage, OutputImage, InputDict.ScaleRange[0], InputDict.ScaleRange[1])</l>
+<l>    OutputDict.ScaleRange := OutputImage</l>
+<l>endif</l>
+<c></c>
+<c>*Gray erosion rectangle after others params</c>
+<l>if(find(ProcessKeys,'ErosionRectAfter')&gt;=0)</l>
+<l>    gray_erosion_rect (OutputImage, OutputImage, InputDict.ErosionRectAfter, InputDict.ErosionRectAfter)</l>
+<l>    OutputDict.ErosionRectAfter := OutputImage</l>
+<l>endif</l>
+<c></c>
+<c>*Gray dilation rectangle after others params</c>
+<l>if(find(ProcessKeys,'DilationRectAfter')&gt;=0)</l>
+<l>    gray_dilation_rect (OutputImage, OutputImage, InputDict.DilationRectAfter, InputDict.DilationRectAfter)</l>
+<l>    OutputDict.DilationRectAfter := OutputImage</l>
+<l>endif</l>
+<c></c>
+<c></c>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="vo_process_image">
+<parameters>
+<parameter id="InputDict"/>
+<parameter id="InputImage"/>
+<parameter id="OutputDict"/>
+<parameter id="OutputImage"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

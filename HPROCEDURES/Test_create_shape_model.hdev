@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.05.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*******************************************************************************************</c>
+<c>*</c>
+<c>*</c>
+<c>*               This program is used to test Palletizer shape model creator</c>
+<c>*</c>
+<c>*</c>
+<c>*******************************************************************************************</c>
+<l>read_object (Object,'./Hobj/Little-Logo/obj_020.hobj')</l>
+<l>select_obj (Object, ImageToTrian, 2)</l>
+<l>get_image_size (ImageToTrian, Width, Height)</l>
+<c></c>
+<l>dev_open_window (0, 0, Width, Height, 'black', WindowHandle)</l>
+<l>dev_display (ImageToTrian)</l>
+<l>dev_set_draw ('margin')</l>
+<l>dev_set_line_width (2)</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                          Get Box ROI</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>* Draw rectangle describing the box to train</c>
+<l>disp_message (WindowHandle, 'Draw box ROI', 'window', 12, 12, 'black', 'true')</l>
+<c>*</c>
+<l>draw_rectangle2 (WindowHandle, RowBox, ColumnBox, PhiBox, LenghtBox1, LenghtBox2)</l>
+<l>gen_rectangle2 (RectangleBox, RowBox, ColumnBox, PhiBox, LenghtBox1, LenghtBox2)</l>
+<c>*</c>
+<l>disp_continue_message (WindowHandle, 'black', 'true')</l>
+<l>stop()</l>
+<c></c>
+<l>dev_clear_window ()</l>
+<l>dev_display (ImageToTrian)</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                          Get Work ROI</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>* Draw the ROI where pallet is expected to be inside.</c>
+<l>disp_message (WindowHandle, 'Draw Work ROI', 'window', 12, 12, 'black', 'true')</l>
+<c>*</c>
+<l>draw_rectangle1 (WindowHandle, WorkRow1, WorkColumn1, WorkRow2, WorkColumn2)</l>
+<l>gen_rectangle1 (WorkRectangle, WorkRow1, WorkColumn1, WorkRow2, WorkColumn2)</l>
+<c>*</c>
+<l>disp_continue_message (WindowHandle, 'black', 'true')</l>
+<l>stop()</l>
+<c></c>
+<c></c>
+<l>dev_clear_window ()</l>
+<l>dev_display (ImageToTrian)</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                       Get Shape Model ROI</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c>* Define shapel models</c>
+<l>disp_message (WindowHandle, 'Draw shape model ROI', 'window', 12, 12, 'black', 'true')</l>
+<l>disp_continue_message (WindowHandle, 'black', 'true')</l>
+<c></c>
+<l>stop()</l>
+<c></c>
+<l>nROI := 2</l>
+<c></c>
+<l>gen_empty_obj (ROIModel)</l>
+<c></c>
+<l>for Index := 1 to nROI by 1</l>
+<l>    dev_display (ImageToTrian)</l>
+<l>    disp_message (WindowHandle, 'Train model: '+Index+'/'+nROI, 'window', 12, 12, 'black', 'true')</l>
+<c></c>
+<l>    draw_rectangle1 (WindowHandle, RowSM1, ColumnSM1, RowSM2, ColumnSM2)</l>
+<l>    gen_rectangle1 (RectangleSM, RowSM1, ColumnSM1, RowSM2, ColumnSM2)</l>
+<l>    concat_obj (ROIModel, RectangleSM, ROIModel)</l>
+<c></c>
+<l>    dev_display (RectangleSM)</l>
+<c>   </c>
+<l>endfor</l>
+<c></c>
+<c></c>
+<c></c>
+<l>disp_message (WindowHandle, 'Train the model', 'window', 12, 12, 'black', 'true')</l>
+<l>disp_continue_message (WindowHandle, 'black', 'true')</l>
+<l>stop ()</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                   Set essentials dict Params</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c></c>
+<c>* Create dict</c>
+<l>InputDict := dict{}</l>
+<c></c>
+<c>* Set Training Image</c>
+<l>InputDict.ImageToTrain := ImageToTrian</l>
+<c></c>
+<c>* Set Box ROI</c>
+<l>InputDict.BoxRegion := RectangleBox</l>
+<c></c>
+<c>* Set Work Region </c>
+<c></c>
+<l>InputDict.WorkRegion := WorkRectangle</l>
+<c></c>
+<c>* Set Shape Model ROI</c>
+<l>InputDict.ShapeROI := ROIModel</l>
+<c></c>
+<c>* Set Real box size</c>
+<l>InputDict.BoxSize := dict {}</l>
+<l>InputDict.BoxSize.Large := 275</l>
+<l>InputDict.BoxSize.Width := 240</l>
+<l>InputDict.BoxSize.High := 293</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                         Set optional dict Params</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c></c>
+<c></c>
+<c></c>
+<c>**************************************</c>
+<c>*      Process params</c>
+<c>**************************************</c>
+<l>InputDict.Filters := dict{}</l>
+<c></c>
+<c>*Select traing channel </c>
+<l>InputDict.Filters.Channel := 4  </l>
+<l>InputDict.Filters.ErosionRectBefore := 4</l>
+<l>* InputDict.Filters.DilationRectBefore := 1</l>
+<l>* InputDict.Filters.ErosionRectAfter := 4</l>
+<l>* InputDict.Filters.DilationRectAfter := 1</l>
+<l>InputDict.Filters.ScaleRange := [80,200]</l>
+<c></c>
+<c>*********************************************</c>
+<c>*                Shape Model Params</c>
+<c>*********************************************</c>
+<l>InputDict.SMParams := dict{}</l>
+<l>* InputDict.SMParams.scale_type := 'auto'  </l>
+<l>InputDict.SMParams.contrast_high := 40</l>
+<l>* InputDict.SMParams.contrast_low := 30</l>
+<l>* InputDict.SMParams.angle_step := 0</l>
+<l>* InputDict.SMParams.metric := 'auto'     //'use_polarity' , 'ignore_global_polarity', 'ignore_local_polarity', 'ignore_color_polarity'      </l>
+<l>InputDict.SMParams.min_size := 35</l>
+<l>* InputDict.SMParams.optimization := 0</l>
+<l>* InputDict.SMParams.num_levels := 0</l>
+<l>* InputDict.SMParams.angle_start := 0</l>
+<l>* InputDict.SMParams.angle_end := 0</l>
+<l>* InputDict.SMParams.max_deformation := 0</l>
+<l>InputDict.SMParams.min_score := 0.4</l>
+<l>* InputDict.SMParams.num_matches := 0</l>
+<l>* InputDict.SMParams.strict_boundaries := 0</l>
+<l>InputDict.SMParams.max_overlap := 0</l>
+<l>* InputDict.SMParams.max_overlap_global_enable  := 0</l>
+<l>* InputDict.SMParams.min_contrast := 0</l>
+<l>* InputDict.SMParams.border_shape_models  := 0</l>
+<l>* InputDict.SMParams.subpixel  := 0</l>
+<l>* InputDict.SMParams.greediness  := 0</l>
+<l>* InputDict.SMParams.pyramid_level_highest  := 0</l>
+<l>* InputDict.SMParams.pyramid_level_lowest  := 0</l>
+<l>* InputDict.SMParams.pyramid_level_robust_tracking  := 0</l>
+<l>* InputDict.SMParams.origin_row := 0</l>
+<l>* InputDict.SMParams.origin_column := 0</l>
+<l>* InputDict.SMParams.prepare_contours_for_visualization := 0</l>
+<l>* InputDict.SMParams.prepare_clutter_region_for_visualization := 0</l>
+<l>* InputDict.SMParams.model_cache := 0</l>
+<l>* InputDict.SMParams.timeout := 0</l>
+<l>* InputDict.SMParams.time_measurement := 0</l>
+<l>* InputDict.SMParams.iso_scale_max := 1.5</l>
+<l>* InputDict.SMParams.iso_scale_min := 0.5</l>
+<l>* InputDict.SMParams.iso_scale_step := 0.1</l>
+<l>InputDict.SMParams.scale_row_max := 1.9</l>
+<l>InputDict.SMParams.scale_row_min := 0.75</l>
+<l>InputDict.SMParams.scale_row_step := 0.1</l>
+<l>InputDict.SMParams.scale_column_max := 1.9</l>
+<l>InputDict.SMParams.scale_column_min := 0.75</l>
+<l>InputDict.SMParams.scale_column_step := 0.1</l>
+<c></c>
+<c></c>
+<c>**************************************</c>
+<c>*            Get top region params </c>
+<c>**************************************</c>
+<c></c>
+<l>InputDict.GetTopROI := dict{}</l>
+<l>InputDict.GetTopROI.MinArea := 3000 </l>
+<l>InputDict.GetTopROI.DeltaZ := 100</l>
+<l>InputDict.GetTopROI.Maxcompactness := 4.5</l>
+<l>InputDict.GetTopROI.MinRectangularity := 0.8</l>
+<c></c>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                      Create shape model procedure</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c></c>
+<l>vo_create_box_model (InputDict, OutputDict)</l>
+<c></c>
+<l>try</l>
+<l>    dev_clear_window ()</l>
+<l>    dev_display (OutputDict.TrainDict.ImageToTrain)   </l>
+<l>    dev_display (OutputDict.ModelContour)</l>
+<l>    stop()</l>
+<c></c>
+<l>catch (Exception)</l>
+<l>    stop()</l>
+<l>endtry</l>
+<c></c>
+<c></c>
+<c></c>
+<l>try</l>
+<l>    Error := OutputDict.Error</l>
+<c>    </c>
+<l>    stop()</l>
+<l>catch (Exception)</l>
+<l>endtry</l>
+<c></c>
+<c>**********************************************************************************************************</c>
+<c>*</c>
+<c>*                                             Test model</c>
+<c>*</c>
+<c>**********************************************************************************************************</c>
+<c></c>
+<l>* list_image_files ('./Hobj/KH7', 'hobj', [], ImageFiles)</l>
+<l>list_image_files ('./Hobj/Little-Logo', 'hobj', [], ImageFiles) </l>
+<l>* list_image_files ('./Hobj/KH7-linea', 'hobj', [], ImageFiles)</l>
+<c></c>
+<c></c>
+<l>for Index := 0 to |ImageFiles|-1 by 1</l>
+<c>    </c>
+<l>    try</l>
+<l>        read_object (ObjectToTest, ImageFiles[Index])</l>
+<l>        select_obj (ObjectToTest, XYZToTest, 1)</l>
+<l>        access_channel (XYZToTest, Z, 3)</l>
+<l>        select_obj (ObjectToTest, ImageToTest, 2)</l>
+<c>        </c>
+<l>        rgb1_to_gray (ImageToTest, GrayImage)</l>
+<c>        </c>
+<l>        gen_rectangle1 (WorkRegion, 173, 279, 591, 966)</l>
+<l>        MinArea:= 3000</l>
+<l>        DeltaZ:= 290 / 2.5                                      </l>
+<l>        Maxcompactness:= 4.5 </l>
+<l>        MinRectangularity:= 0.8</l>
+<l>        get_top_Z_work_region (Z, WorkRegion, LayerRegion, DeltaZ, MinArea, MinRectangularity, Maxcompactness)</l>
+<c>        </c>
+<c>        </c>
+<c>        *Reduce domain with top Z boxes</c>
+<c>        </c>
+<l>        dilation_rectangle1 (LayerRegion, RegionDilation, 10, 10)</l>
+<c>        </c>
+<l>        fill_up (RegionDilation, RegionFillUp)</l>
+<c>        </c>
+<l>        union1 (RegionFillUp, TopZRegion)</l>
+<c>        </c>
+<l>        vo_process_image (ImageToTest,OutputImage,InputDict.Process,OutputDict1)</l>
+<c>       </c>
+<c>        </c>
+<l>        reduce_domain (OutputImage, TopZRegion, ImageReduced)</l>
+<c>        </c>
+<c>        *find model</c>
+<l>        find_generic_shape_model (ImageReduced, OutputDict.ModelID, MatchResultID, NumMatchResult)</l>
+<c>        </c>
+<l>        if (NumMatchResult)</l>
+<l>            get_generic_shape_model_result_object (Objects, MatchResultID, 'all', 'contours')</l>
+<l>            stop ()</l>
+<c>            </c>
+<l>        else</l>
+<l>            stop()</l>
+<l>        endif</l>
+<l>    catch(Ex)</l>
+<l>        stop()</l>
+<l>    endtry</l>
+<c></c>
+<c>    </c>
+<l>    write_dict (OutputDict,'./Recipes/Little-Logo.hdict', [], [])</l>
+<c>    </c>
+<l>endfor</l>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

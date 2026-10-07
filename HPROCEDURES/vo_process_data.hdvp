@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="vo_process_data">
+<interface>
+<ic>
+<par name="InputDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="OutputDict" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c></c>
+<c></c>
+<c></c>
+<l>get_dict_param (InputDict.RecipeDict.TrainDict, 'keys', [], Keys)</l>
+<c></c>
+<l>if(find(Keys,'SecondRecipe')&gt;=0)</l>
+<c>    </c>
+<l>    vo_find_multi_boxes (InputDict,OutputDict)</l>
+<c>    </c>
+<l>else</l>
+<c>    </c>
+<l>    vo_find_boxes(InputDict, OutputDict)</l>
+<c>    </c>
+<l>endif</l>
+<l>return ()</l>
+</body>
+<docu id="vo_process_data">
+<parameters>
+<parameter id="InputDict"/>
+<parameter id="OutputDict"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

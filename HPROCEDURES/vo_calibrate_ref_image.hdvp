@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="23.11.0.0">
+<procedure name="vo_calibrate_ref_image">
+<interface>
+<ic>
+<par name="ParamsDict" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="ResultsDict" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>* Create a scaled shape model procedure. Used for cyberpick </c>
+<c>* and BM 2D picking solution.</c>
+<c>* Creation Date: 16/09/2023 ---  Last Modify:</c>
+<c>*</c>
+<c></c>
+<c>* 1. Cast the incoming parameters in the dictionary</c>
+<c>***************************************************</c>
+<c>* List of expected params</c>
+<l>IncomingParams := 'TrainingImage'</l>
+<l>IncomingParams[1] := 'CameraParams'</l>
+<l>IncomingParams[2] := 'CameraPose'</l>
+<l>IncomingParams[3] := 'CaltabPath'</l>
+<c></c>
+<l>vo_check_dict_params (ParamsDict, IncomingParams, MissingParameter)</l>
+<c></c>
+<l>if (|MissingParameter| &gt; 0)</l>
+<l>    throw ([])</l>
+<l>endif</l>
+<l>* gen_empty_obj (TrainingImage)</l>
+<l>* TrainingImage := ParamsDict.TrainingImage</l>
+<l>* dev_get_window (WindowHandle1)</l>
+<l>get_image_size (ParamsDict.TrainingImage, Width, Height)</l>
+<l>open_window (0, 0, Width, Height, 0, 'invisible', '', WindowHandle)</l>
+<c></c>
+<c>* Reduce domain in training image by ROI and remove small regions</c>
+<c>********************************************************************</c>
+<c>* Read calib plate descr</c>
+<l>create_calib_data ('calibration_object', 1, 1, CalibDataID)</l>
+<l>set_calib_data_cam_param (CalibDataID, 0, [], ParamsDict.CameraParams)</l>
+<l>set_calib_data_calib_object (CalibDataID, 0, ParamsDict.CaltabPath)</l>
+<c></c>
+<c>* Find plate pose</c>
+<l>find_calib_object (ParamsDict.TrainingImage, CalibDataID, 0, 0, 0, [], [])</l>
+<l>get_calib_data_observ_contours (Caltab, CalibDataID, 'caltab', 0, 0, 0)</l>
+<l>get_calib_data_observ_points (CalibDataID, 0, 0, 0, RCoord, CCoord, Index, PoseCalib)</l>
+<c></c>
+<c>***</c>
+<c>* Generate the image Map</c>
+<l>vo_get_map_parameters (ParamsDict.TrainingImage, ParamsDict.CameraParams, PoseCalib, \
+                       Width, Height, ScaleForEntireImage, PoseForEntireImage)</l>
+<l>*image_to_world_plane (ParamsDict.TrainingImage, ImageWCS, ParamsDict.CameraParams, \
+                      PoseForEntireImage, Width1, Height1, ScaleForEntireImage, 'bilinear')</l>
+<l>gen_image_to_world_plane_map (Map, ParamsDict.CameraParams, PoseForEntireImage, Width, Height, \
+                              Width, Height, ScaleForEntireImage, 'bilinear')</l>
+<c></c>
+<c>* Check the mapping quality, measuring the distance between two plate points</c>
+<l>map_image (ParamsDict.TrainingImage, Map, ImageMapped)</l>
+<l>create_calib_data ('calibration_object', 1, 1, CalibDataID_new)</l>
+<l>set_calib_data_cam_param (CalibDataID_new, 0, [], ParamsDict.CameraParams)</l>
+<l>set_calib_data_calib_object (CalibDataID_new, 0, ParamsDict.CaltabPath)</l>
+<c></c>
+<l>find_calib_object (ImageMapped, CalibDataID_new, 0, 0, 0, [], [])</l>
+<l>get_calib_data_observ_contours (Caltab, CalibDataID_new, 'caltab', 0, 0, 0)</l>
+<l>get_calib_data_observ_points (CalibDataID_new, 0, 0, 0, RCoor, CCoor, Index, PoseCalib_new)</l>
+<c></c>
+<l>*gen_cross_contour_xld (Cross, [RCoor[0],RCoor[1]] , [CCoor[0],CCoor[1]], 6, 0)</l>
+<c></c>
+<c>* Measure distance between two points, this can help to know the quality of the calibration.</c>
+<l>gen_region_line (RegionLines, RCoor[0], CCoor[0], RCoor[1], CCoor[1])</l>
+<l>Xdist := ((RCoor[0] - RCoor[1])*ScaleForEntireImage)*1000</l>
+<l>YDist := abs(((CCoor[0] - CCoor[1])*ScaleForEntireImage)*1000)</l>
+<c></c>
+<c>* 5. Generate the result dictionary</c>
+<c>***********************************</c>
+<c></c>
+<l>*set_window_param (WindowHandle, 'region_quality', 'good')</l>
+<l>*set_window_param (WindowHandle, 'anti_aliasing', 'true')</l>
+<c></c>
+<l>disp_image (ParamsDict.TrainingImage, WindowHandle)</l>
+<l>disp_3d_coord_system (WindowHandle, ParamsDict.CameraParams, PoseCalib_new, 0.1)</l>
+<l>disp_cross (WindowHandle, RCoord, CCoord, 25, 0)</l>
+<l>dump_window_image (ResultImage, WindowHandle)</l>
+<c></c>
+<l>ResultsDict := ParamsDict</l>
+<l>ResultsDict.ResultImage := ResultImage</l>
+<l>ResultsDict.RefRow := RCoor[0]</l>
+<l>ResultsDict.RefCol := CCoor[0]</l>
+<l>ResultsDict.Map := Map</l>
+<l>ResultsDict.Scale := ScaleForEntireImage</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="vo_calibrate_ref_image">
+<parameters>
+<parameter id="ParamsDict"/>
+<parameter id="ResultsDict"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

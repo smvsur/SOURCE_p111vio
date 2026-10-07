@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="vo_define_palet">
+<interface>
+<io>
+<par name="DepthMap" base_type="iconic" dimension="0"/>
+<par name="WorkRegion" base_type="iconic" dimension="0"/>
+</io>
+<oo>
+<par name="WorkRegionOut" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="Palet_Large" base_type="ctrl" dimension="0"/>
+<par name="Palet_Width" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>WorkRegionOut := WorkRegion</l>
+<l>    decompose3(DepthMap,X,Y,Z)</l>
+<c>    </c>
+<l>    area_center (WorkRegionOut, Area, Row, Column)</l>
+<c>    </c>
+<c>    *Define X limits</c>
+<l>    get_grayval (X, Row, Column, XVal)</l>
+<c>    </c>
+<l>    threshold (X, XRegion, XVal - Palet_Large/2, XVal + Palet_Large/2)</l>
+<c>    </c>
+<c>    *Define Y limits</c>
+<l>    get_grayval (Y, Row, Column, YVal)</l>
+<c>    </c>
+<l>    threshold (Y, YRegion, YVal - Palet_Width/2, YVal + Palet_Width/2)</l>
+<c>    </c>
+<c>        *Define Z limits</c>
+<l>    threshold (Z, ZRegion, 1, 1000000000000)</l>
+<c>    </c>
+<l>   intersection (XRegion, YRegion, RegionIntersection)</l>
+<l>    intersection (RegionIntersection, ZRegion, WorkRegionOut)</l>
+<l>return ()</l>
+</body>
+<docu id="vo_define_palet">
+<parameters>
+<parameter id="DepthMap"/>
+<parameter id="Palet_Large"/>
+<parameter id="Palet_Width"/>
+<parameter id="WorkRegion"/>
+<parameter id="WorkRegionOut"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

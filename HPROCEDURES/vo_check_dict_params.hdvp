@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="23.05.0.0">
+<procedure name="vo_check_dict_params">
+<interface>
+<ic>
+<par name="ParamsDict" base_type="ctrl" dimension="0"/>
+<par name="Keys" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="MissingParameter" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>* Check if there are missing parameters in the incoming dictionary</c>
+<c>* Creation Date: 18/09/2023 ---  Last Modify: 18/09/2023</c>
+<c>*</c>
+<c></c>
+<l>get_dict_param (ParamsDict, 'key_exists', Keys, KeysPresence)</l>
+<l>MissingParameter := []</l>
+<c></c>
+<l>for Index := 0 to |KeysPresence|-1 by 1</l>
+<l>    if (KeysPresence[Index] == 0)</l>
+<l>        MissingParameter := [MissingParameter, Keys[Index]]</l>
+<l>    endif</l>
+<l>endfor</l>
+<l>return ()</l>
+</body>
+<docu id="vo_check_dict_params">
+<parameters>
+<parameter id="Keys"/>
+<parameter id="MissingParameter"/>
+<parameter id="ParamsDict"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>
