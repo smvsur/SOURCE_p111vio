@@ -121,8 +121,7 @@
 <c>    ********************************</c>
 <l>    if(find(TrainDictKeys,'GetTopROI')&gt;=0)</l>
 <c>        </c>
-<l>        GetTopDict := TrainDict.GetTopROI</l>
-<c>        </c>
+<l>        GetTopDict := TrainDict.GetTopROI        </l>
 <c>        </c>
 <l>        get_dict_param (GetTopDict, 'keys', [], GetTopDictKeys)</l>
 <c>        </c>
@@ -131,14 +130,12 @@
 <l>        endif</l>
 <c>        </c>
 <l>        if(find(GetTopDictKeys,'DeltaZ')&gt;=0)</l>
-<l>            DeltaZ := GetTopDict.DeltaZ</l>
-<c>            </c>
+<l>            DeltaZ := GetTopDict.DeltaZ            </l>
 <l>        endif</l>
 <c>        </c>
 <l>        if(find(GetTopDictKeys,'Maxcompactness')&gt;=0)</l>
 <l>            Maxcompactness := GetTopDict.Maxcompactness</l>
-<l>        endif</l>
-<c>        </c>
+<l>        endif        </l>
 <c>        </c>
 <l>        if(find(GetTopDictKeys,'MinRectangularity')&gt;=0)</l>
 <l>            MinRectangularity := GetTopDict.MinRectangularity</l>
@@ -150,7 +147,7 @@
 <c>        </c>
 <l>    endif</l>
 <c>    </c>
-<l>     decompose3(InputDict.DepthMap,X,Y,Z)</l>
+<l>    decompose3(InputDict.DepthMap,X,Y,Z)</l>
 <c>    </c>
 <c>    </c>
 <c>    **********************</c>
@@ -166,8 +163,7 @@
 <l>    vo_define_palet (DepthMap, WorkRegion, WorkRegion, Palet_Large, Palet_Width)</l>
 <c>    </c>
 <l>    dilation_rectangle1 (WorkRegion, RegionDilation, 20, 20)</l>
-<l>    fill_up (RegionDilation, WorkRegion)</l>
-<c>       </c>
+<l>    fill_up (RegionDilation, WorkRegion)       </l>
 <c>    </c>
 <c>    *******************************</c>
 <c>    * Get top Z layer procedure</c>
@@ -182,8 +178,7 @@
 <l>    fill_up (RegionDilation, RegionFillUp)</l>
 <l>    union1 (RegionFillUp, TopZRegion)</l>
 <c>    </c>
-<l>    OutputDict.LayerRegion := TopZRegion</l>
-<c>    </c>
+<l>    OutputDict.LayerRegion := TopZRegion   </l>
 <c>    </c>
 <l>catch(Ex)</l>
 <c>    </c>
@@ -259,10 +254,10 @@
 <l>    MinScaleCandidate:=0.5</l>
 <c>    </c>
 <c>    *Initial score for detected candidates</c>
-<l>    ScoreCandidate := 0.8</l>
+<l>    ScoreCandidate := 0.65</l>
 <c>    </c>
 <c>    *Initial scale for detected candidates</c>
-<l>    ScaleCandidate := 0.8</l>
+<l>    ScaleCandidate := 0.65</l>
 <c>    </c>
 <c>    *Get trained shape model min score</c>
 <l>    get_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
@@ -326,12 +321,7 @@
 <l>            OrderType := OrderCandidatesDict.MinScoreCandidate</l>
 <l>        endif</l>
 <c>        </c>
-<l>    endif</l>
-<c>    </c>
-<c>    </c>
-<c>    </c>
-<c>    </c>
-<c>    </c>
+<l>    endif </l>
 <c>    </c>
 <c>    </c>
 <c>    *****************************************************************************************</c>
