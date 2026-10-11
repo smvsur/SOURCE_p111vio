@@ -11,7 +11,6 @@
 </oc>
 </interface>
 <body>
-<c></c>
 <c>*Set empty object value to zero </c>
 <l>set_system ('store_empty_region','false')</l>
 <c>    </c>
@@ -20,260 +19,174 @@
 <c>    </c>
 <c>*Oreder using lowest X and lowest Y</c>
 <l>if (TypeOrder='mX_mY')</l>
+<l>    throw('NotImplementExeception')</l>
 <c>    </c>
 <c>*Oreder using lowest Y and lowest X    </c>
-<l>elseif (TypeOrder='mY_mX')      </l>
-<l>        DictTempBoxes := InputDictBoxes</l>
+<l>elseif (TypeOrder='mY_mX')  </l>
+<c>    </c>
+<l>    restDictBoxes := InputDictBoxes</l>
+<l>    get_dict_param (restDictBoxes, 'keys', [], keyBoxes)</l>
+<c>    </c>
+<l>    numOutBoxes := 0</l>
+<c>    </c>
+<l>    while (|keyBoxes|&gt;0)</l>
 <c>        </c>
-<l>        get_dict_param (DictTempBoxes, 'keys', [], keyBoxes)</l>
+<c>        *Get all boxes region</c>
+<l>        gen_empty_obj (joinedBoxes)</l>
+<l>        for index := 0 to |keyBoxes| - 1 by 1         </l>
+<l>            box := restDictBoxes.[index].BoxRegion                </l>
+<l>            concat_obj (joinedBoxes, box, joinedBoxes) </l>
+<l>        endfor          </l>
 <c>        </c>
-<l>        gen_empty_obj (TempBoxes)</l>
+<c>        *Get all columns and rows points</c>
+<l>        region_features (joinedBoxes,'column', ColumnValues)</l>
+<l>        region_features (joinedBoxes,'row', RowValues)</l>
 <c>        </c>
-<l>        numOutBoxes := 0        </l>
+<c>        *Find region center point with min value to find top box</c>
+<l>        tuple_min (RowValues, RowMin)</l>
+<l>        tuple_find(RowValues, RowMin, firsPose)</l>
 <c>        </c>
-<l>        while (|keyBoxes|&gt;0)         </l>
-<c>            </c>
-<c>            *Get all boxes region </c>
-<l>            for IndexBoxes := 0 to |keyBoxes| - 1 by 1                </l>
-<l>                box := DictTempBoxes.[IndexBoxes].BoxRegion                </l>
-<l>                concat_obj (TempBoxes, box, TempBoxes)                </l>
-<l>            endfor</l>
-<c>            </c>
-<c>            *Get all columns and rows points</c>
-<l>            region_features (TempBoxes,'column', ColumnValues)</l>
-<l>            region_features (TempBoxes,'row', RowValues)</l>
-<c>            </c>
-<c>            *Find region center point with min value to find top box</c>
-<l>            tuple_min (RowValues, RowMin)</l>
-<l>            tuple_find(RowValues, RowMin, firsPose)</l>
-<c>            </c>
-<c>            *Get min and max column center point to generata an line</c>
-<l>            tuple_min (ColumnValues, ColumnMin)</l>
-<l>            tuple_find(ColumnValues, ColumnMin, firsPose1)</l>
-<c>            </c>
-<l>            tuple_max (ColumnValues, ColumnMax)</l>
-<l>            tuple_find(ColumnValues, ColumnMax, firsPose2)</l>
-<c>            </c>
-<l>            region_features(box, 'height', width)</l>
-<c>            </c>
-<l>            gen_rectangle1 (Rectangle, RowMin-width/2, ColumnMin, RowMin+width/2, ColumnMax)            </l>
-<c>            </c>
-<l>            DictOrderBoxes := DictTempBoxes</l>
-<l>            OrderBoxes:=TempBoxes</l>
-<l>            gen_empty_obj (TempBoxes)</l>
-<l>            gen_empty_obj (Boxline)</l>
-<l>            DictTempBoxes := dict{}</l>
-<l>            DictBoxline := dict{}</l>
-<l>            DictBoxToOrder := dict{}</l>
-<c>            </c>
-<l>            get_dict_param (DictOrderBoxes, 'keys', [], keyOrderBoxes)</l>
-<l>            BoxesNumber := |keyOrderBoxes|</l>
-<c>            </c>
-<c>            *Store in a dict</c>
-<c>            </c>
-<l>            numBoxLine := 0</l>
-<l>            numBoxTemp := 0</l>
-<c>            </c>
-<c>            *If the box has an intersection with the line mean that is in the same Y line</c>
-<l>            for Index := 0 to BoxesNumber - 1 by 1</l>
+<c>        *Get min and max column center point to generata an line</c>
+<l>        tuple_min (ColumnValues, ColumnMin)            </l>
+<l>        tuple_max (ColumnValues, ColumnMax)</l>
+<c>        </c>
+<l>        region_features(box, 'height', width)</l>
+<c>        </c>
+<l>        gen_rectangle1 (Rectangle, RowMin-width/2, ColumnMin, RowMin+width/2, ColumnMax)</l>
+<c>        </c>
+<l>        lineDictBox := dict{}</l>
+<l>        noLineDictBox := dict{}</l>
+<l>        lineCurrentIndex := 0</l>
+<l>        noLineCurrentIndex := 0</l>
+<l>        for Index := 0 to |keyBoxes| - 1 by 1</l>
+<l>            ObjectSelected := restDictBoxes.[Index].BoxRegion</l>
+<l>            intersection (ObjectSelected, Rectangle, RegionIntersection)</l>
+<l>            count_obj (RegionIntersection, isIntersected)</l>
 <c>                </c>
-<l>                ObjectSelected := DictOrderBoxes.[Index].BoxRegion</l>
-<c>                </c>
-<l>                intersection (ObjectSelected,Rectangle, RegionIntersection)</l>
-<l>                count_obj (RegionIntersection, isIntersected)</l>
-<c>                </c>
-<l>                if (isIntersected)                    </l>
-<l>                    DictBoxline.[numBoxLine] := DictOrderBoxes.[Index]</l>
-<l>                    numBoxLine := numBoxLine + 1</l>
-<l>                    concat_obj (Boxline,ObjectSelected,Boxline)                    </l>
-<l>                else                    </l>
-<l>                    DictTempBoxes.[numBoxTemp] := DictOrderBoxes.[Index]</l>
-<l>                    numBoxTemp := numBoxTemp + 1</l>
-<l>                    concat_obj (TempBoxes,ObjectSelected,TempBoxes)                    </l>
-<l>                endif</l>
-<c>                </c>
-<l>            endfor</l>
+<l>            if (isIntersected)                    </l>
+<l>                lineDictBox.[lineCurrentIndex] := restDictBoxes.[Index]</l>
+<l>                lineCurrentIndex := lineCurrentIndex + 1</l>
+<l>            else</l>
+<l>                noLineDictBox.[noLineCurrentIndex] := restDictBoxes.[Index]</l>
+<l>                noLineCurrentIndex := noLineCurrentIndex + 1</l>
+<l>            endif                </l>
+<l>        endfor           </l>
+<c>        </c>
+<c>        *****************************************************************************************</c>
+<c>        *-----------------------------------Get top boxes --------------------------------------</c>
+<c>        *****************************************************************************************            </c>
+<l>        get_dict_param (lineDictBox, 'keys', [], keyLineBoxes)</l>
+<c>        </c>
+<l>        topLineDictBox := dict{}</l>
+<l>        topLineCurrentIndex := 0</l>
+<l>        for i := 0 to |keyLineBoxes| - 1 by 1</l>
+<l>            areThereAnyUp := false</l>
 <c>            </c>
+<l>            mainRegion := lineDictBox.[i].BoxRegion</l>
+<l>            erosion_rectangle1 (mainRegion, mainRegion, 20, 20)</l>
+<l>            dilation_rectangle1 (mainRegion, mainRegion, 1, 100)</l>
 <c>            </c>
-<c>            *****************************************************************************************</c>
-<c>            *-----------------------------------Get top boxes --------------------------------------</c>
-<c>            *****************************************************************************************</c>
-<l>            countBoxToOrder := 0</l>
-<c>            </c>
-<l>            get_dict_param (DictBoxline, 'keys', [], keyLineBoxes)</l>
-<l>            LineBoxNumber := |keyLineBoxes|</l>
-<c>            </c>
-<l>            if (LineBoxNumber &gt; 1)</l>
-<c>                </c>
-<l>                while (LineBoxNumber &gt; 0)                    </l>
-<l>                    gen_empty_obj (Boxline)</l>
+<l>            for j := 0 to |keyLineBoxes| - 1 by 1</l>
+<l>                if (i != j)</l>
+<l>                    region := lineDictBox.[j].BoxRegion</l>
+<l>                    erosion_rectangle1 (region, region, 20, 20)                    </l>
+<l>                    intersection (region, mainRegion, intersectionRegion)</l>
+<l>                    count_obj (intersectionRegion, isIntersected)</l>
 <c>                    </c>
-<c>                    *Get all boxes in line</c>
-<l>                    for IndexBoxes := 0 to LineBoxNumber - 1 by 1                        </l>
-<l>                        box := DictBoxline.[keyLineBoxes[IndexBoxes]].BoxRegion                        </l>
-<l>                        concat_obj (Boxline, box, Boxline)                        </l>
-<l>                    endfor</l>
-<c>                    </c>
-<l>                    erosion_rectangle1 (Boxline, RegionErosion, 20, 20)</l>
-<c>                    </c>
-<l>                    select_obj (RegionErosion, inspObj, 1)</l>
-<c>                    </c>
-<l>                    dilation_rectangle1 (inspObj, RegionDilation, 1, 100)</l>
-<c>                    </c>
-<l>                    count_obj(RegionErosion,LineNumber)</l>
-<c>                    </c>
-<l>                    isOK := true</l>
-<c>                    </c>
-<l>                    tempDict := dict{}</l>
-<l>                    numTemp := 0</l>
-<c>                    </c>
-<c>                    *If the box has an intersection take the toppest one </c>
-<l>                    for Index := 2 to LineNumber by 1</l>
+<l>                    if (isIntersected)</l>
+<l>                        region_features(mainRegion, 'row', mainRow)</l>
+<l>                        region_features(region,'row', row)</l>
 <c>                        </c>
-<l>                        select_obj (RegionErosion,ObjectSelected, Index)</l>
-<c>                        </c>
-<l>                        intersection (ObjectSelected,RegionDilation, RegionIntersection)</l>
-<l>                        count_obj (RegionIntersection,isIntersected)</l>
-<c>                        </c>
-<l>                        if (isIntersected)</l>
-<c>                            </c>
-<l>                            region_features(ObjectSelected,'row',rowObjSelected)</l>
-<l>                            region_features(RegionDilation,'row', rowInspObj)</l>
-<c>                            </c>
-<l>                            if(rowObjSelected &lt; rowInspObj)</l>
-<c>                                </c>
-<l>                                isOK := false</l>
-<c>                                </c>
-<l>                                tempDict.[numTemp] := DictBoxline.[keyLineBoxes[Index-1]]</l>
-<c>                            </c>
-<l>                                numTemp := numTemp +1</l>
-<c>                                </c>
-<l>                                get_dict_param(DictTempBoxes, 'keys', [], DictTempBoxesKey)</l>
-<c>                                </c>
-<l>                                DictTempBoxesNum := |DictTempBoxesKey|</l>
-<c>                                </c>
-<l>                                DictTempBoxes.[DictTempBoxesKey[DictTempBoxesNum-1]+1] := DictBoxline.[0]                                </l>
-<c>                                </c>
-<l>                            else</l>
-<c>                                </c>
-<l>                                get_dict_param(DictTempBoxes, 'keys', [], DictTempBoxesKey)</l>
-<c>                                </c>
-<l>                                DictTempBoxesNum := |DictTempBoxesKey|</l>
-<c>                                </c>
-<l>                                DictTempBoxes.[DictTempBoxesKey[DictTempBoxesNum-1]+1] := DictBoxline.[keyLineBoxes[Index-1]]</l>
-<c>                                </c>
-<l>                            endif</l>
-<c>                            </c>
-<l>                        else</l>
-<c>                            </c>
-<l>                            tempDict.[numTemp] := DictBoxline.[keyLineBoxes[Index-1]]</l>
-<c>                            </c>
-<l>                            numTemp := numTemp +1                            </l>
-<c>                            </c>
+<l>                        if (mainRow &gt; row)</l>
+<l>                            areThereAnyUp := true</l>
 <l>                        endif</l>
-<c>                        </c>
-<l>                    endfor                  </l>
-<c>                    </c>
-<l>                    if(isOK)</l>
-<c>                        </c>
-<l>                        DictBoxToOrder.[countBoxToOrder] := DictBoxline.[keyLineBoxes[0]]</l>
-<c>                        </c>
-<l>                        countBoxToOrder := countBoxToOrder +1</l>
-<c>                        </c>
-<l>                    endif                    </l>
-<c>                    </c>
-<l>                    DictBoxline := dict{}</l>
-<l>                    DictBoxline := tempDict                    </l>
-<c>                    </c>
-<l>                    get_dict_param (DictBoxline, 'keys', [], keyLineBoxes)</l>
-<l>                    LineBoxNumber := |keyLineBoxes|</l>
-<c>                    </c>
-<l>                endwhile</l>
-<c>                </c>
+<l>                    endif</l>
+<l>                endif</l>
+<l>            endfor</l>
+<c>            </c>
+<l>            if (areThereAnyUp)</l>
+<l>                noLineDictBox.[noLineCurrentIndex] := lineDictBox.[i]</l>
+<l>                noLineCurrentIndex := noLineCurrentIndex + 1</l>
+<l>            else</l>
+<l>                topLineDictBox.[topLineCurrentIndex] := lineDictBox.[i]</l>
+<l>                topLineCurrentIndex := topLineCurrentIndex + 1</l>
 <l>            endif</l>
 <c>            </c>
-<c>            </c>
-<c>            **********************************************************************************************************</c>
-<c>            *---------------------------------- Oreder the same Y line boxes in X order --------------------------------</c>
-<c>            ***********************************************************************************************************</c>
-<c>            </c>
-<l>            get_dict_param (DictBoxToOrder, 'keys', [], keyDictBoxToOrder)</l>
-<l>            DictBoxToOrderNumber := |keyDictBoxToOrder|</l>
-<c>            </c>
-<l>            if (DictBoxToOrderNumber&gt;1)</l>
-<l>                while (DictBoxToOrderNumber&gt;0)</l>
-<c>                    </c>
-<l>                    gen_empty_obj (Boxline)</l>
-<c>                    </c>
-<c>                    *Get all boxes in line</c>
-<l>                    for IndexBoxes := 0 to DictBoxToOrderNumber - 1 by 1                        </l>
-<l>                        box := DictBoxToOrder.[keyDictBoxToOrder[IndexBoxes]].BoxRegion                        </l>
-<l>                        concat_obj (Boxline, box, Boxline)                        </l>
-<l>                    endfor</l>
-<c>                    </c>
-<l>                    region_features (Boxline,'column', LineColumnValues)</l>
-<l>                    tuple_min (LineColumnValues, LineColumnMin)</l>
-<l>                    tuple_find (LineColumnValues,LineColumnMin, Indices)</l>
-<c>                    </c>
-<c>                    *Save candidate on a output dict</c>
-<l>                    OutputDictBoxes.[numOutBoxes] := DictBoxToOrder.[keyDictBoxToOrder[Indices]]</l>
-<l>                    numOutBoxes := numOutBoxes +1 </l>
-<c>                    </c>
-<c>                    *Remove candidate from boxline</c>
-<l>                    tempDict := dict{}</l>
-<l>                    for IndexBoxes := 0 to DictBoxToOrderNumber - 1 by 1</l>
-<l>                        if(IndexBoxes != Indices)</l>
-<l>                            tempDict.[IndexBoxes]  := DictBoxToOrder.[keyDictBoxToOrder[IndexBoxes]]</l>
-<l>                        endif                   </l>
-<l>                    endfor</l>
-<l>                    DictBoxToOrder := tempDict</l>
-<c>                    </c>
-<l>                    get_dict_param (DictBoxToOrder, 'keys', [], keyDictBoxToOrder)</l>
-<l>                    DictBoxToOrderNumber := |keyDictBoxToOrder|                    </l>
-<c>                    </c>
-<l>                endwhile</l>
-<c>                </c>
-<l>            else                </l>
-<c></c>
-<l>                OutputDictBoxes.[numOutBoxes] := DictBoxToOrder.[keyDictBoxToOrder[0]]</l>
-<l>                numOutBoxes := numOutBoxes +1 </l>
-<c>                </c>
-<l>            endif</l>
-<c>            </c>
-<l>            get_dict_param (DictTempBoxes, 'keys', [], keyBoxes)</l>
-<c>            </c>
-<l>        endwhile        </l>
+<l>        endfor</l>
 <c>        </c>
-<l>    elseif (TypeOrder='MY_MX')</l>
+<c>        **********************************************************************************************************</c>
+<c>        *---------------------------------- Update for new Iteration --------------------------------</c>
+<c>        ***********************************************************************************************************</c>
+<l>        restDictBoxes := noLineDictBox</l>
+<l>        get_dict_param (restDictBoxes, 'keys', [], keyBoxes)</l>
 <c>        </c>
-<l>    elseif (TypeOrder='MY_MX')    </l>
+<c>        **********************************************************************************************************</c>
+<c>        *---------------------------------- Oreder the same Y line boxes in X order --------------------------------</c>
+<c>        ***********************************************************************************************************</c>
+<l>        noOrderedDictBox := topLineDictBox</l>
+<l>        get_dict_param (noOrderedDictBox, 'keys', [], keyLineBoxes)</l>
 <c>        </c>
-<l>    elseif(TypeOrder='top_left')</l>
-<c>        </c>
-<l>        DictTempBoxes := InputDictBoxes</l>
-<c>        </c>
-<l>        get_dict_param (DictTempBoxes, 'keys', [], keyBoxes)</l>
-<c>        </c>
-<l>        gen_empty_obj (TempBoxes)</l>
-<c>        </c>
-<l>        numOutBoxes := 0        </l>
-<c>        </c>
-<l>        while (|keyBoxes|&gt;0)            </l>
+<l>        while(|keyLineBoxes| &gt; 0)</l>
+<l>            gen_empty_obj (joinedBoxes)</l>
+<l>            for index := 0 to |keyLineBoxes| - 1 by 1         </l>
+<l>                box := noOrderedDictBox.[index].BoxRegion                </l>
+<l>                concat_obj (joinedBoxes, box, joinedBoxes) </l>
+<l>            endfor</l>
 <c>            </c>
-<c>            *Get all boxes region </c>
-<l>            for IndexBoxes := 0 to |keyBoxes| - 1 by 1                </l>
-<l>                box := DictTempBoxes.[IndexBoxes].BoxRegion                </l>
-<l>                concat_obj (TempBoxes, box, TempBoxes)                </l>
-<l>            endfor            </l>
+<l>            region_features (joinedBoxes,'column', lineColumnValues)</l>
+<l>            tuple_min (lineColumnValues, lineColumnMin)</l>
+<l>            tuple_find (lineColumnValues,lineColumnMin, newIndex)</l>
 <c>            </c>
-<c>            *Get all columns and rows points</c>
-<l>            region_features (TempBoxes,'column', ColumnValues)</l>
-<l>            region_features (TempBoxes,'row', RowValues)</l>
+<l>            OutputDictBoxes.[numOutBoxes] := noOrderedDictBox.[newIndex]</l>
+<l>            numOutBoxes := numOutBoxes + 1</l>
 <c>            </c>
-<l>            get_dict_param (DictBoxToOrder, 'keys', [], keyDictBoxToOrder)</l>
-<l>            DictBoxToOrderNumber := |keyDictBoxToOrder|           </l>
+<l>            tempDict := dict{}</l>
+<l>            tempDictCount := 0</l>
+<l>            for index := 0 to |keyLineBoxes| - 1 by 1</l>
+<l>                if (newIndex != index)</l>
+<l>                    tempDict.[tempDictCount] := noOrderedDictBox.[index]</l>
+<l>                    tempDictCount := tempDictCount + 1</l>
+<l>                endif</l>
+<l>            endfor</l>
 <c>            </c>
-<l>        endwhile      </l>
+<l>            noOrderedDictBox := tempDict</l>
+<l>            get_dict_param (noOrderedDictBox, 'keys', [], keyLineBoxes)</l>
+<c>            </c>
+<l>        endwhile</l>
+<c>       </c>
+<c>            </c>
+<l>    endwhile        </l>
+<c>        </c>
+<l>elseif (TypeOrder='MY_MX')</l>
+<c>        </c>
+<l>elseif (TypeOrder='MY_MX')    </l>
+<c>        </c>
+<l>elseif(TypeOrder='top_left')</l>
+<c>        </c>
+<l>    DictTempBoxes := InputDictBoxes</l>
+<c>        </c>
+<l>    get_dict_param (DictTempBoxes, 'keys', [], keyBoxes)</l>
+<c>        </c>
+<l>    gen_empty_obj (TempBoxes)</l>
+<c>        </c>
+<l>    numOutBoxes := 0        </l>
+<c>        </c>
+<l>    while (|keyBoxes|&gt;0)            </l>
+<c>            </c>
+<c>        *Get all boxes region </c>
+<l>        for IndexBoxes := 0 to |keyBoxes| - 1 by 1                </l>
+<l>            box := DictTempBoxes.[IndexBoxes].BoxRegion                </l>
+<l>            concat_obj (TempBoxes, box, TempBoxes)                </l>
+<l>        endfor            </l>
+<c>            </c>
+<c>        *Get all columns and rows points</c>
+<l>        region_features (TempBoxes,'column', ColumnValues)</l>
+<l>        region_features (TempBoxes,'row', RowValues)</l>
+<c>            </c>
+<l>        get_dict_param (InputDictBoxes, 'keys', [], keyDictBoxToOrder)</l>
+<l>        DictBoxToOrderNumber := |keyDictBoxToOrder|           </l>
+<c>            </c>
+<l>    endwhile      </l>
 <c></c>
 <l>    endif</l>
 </body>
