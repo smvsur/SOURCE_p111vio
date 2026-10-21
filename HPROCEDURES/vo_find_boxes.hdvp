@@ -13,17 +13,9 @@
 <c>**********************************************************************************************************************************************************************************************</c>
 <c>**********************************************************************************************************************************************************************************************</c>
 <c>**********************************************************************************************************************************************************************************************</c>
-<c>*</c>
-<c>*</c>
-<c>*</c>
-<c>**********************************************************************************************************************************************************************************************</c>
-<c>**********************************************************************************************************************************************************************************************</c>
-<c>**********************************************************************************************************************************************************************************************</c>
-<c></c>
 <c></c>
 <l>OutputDict := dict{}</l>
 <l>OutputDict.Error := dict{}</l>
-<c></c>
 <c></c>
 <c>**********************************************************************************************************************************************************************************************</c>
 <c>*                                                                        CHECK MAIN PARAMS</c>
@@ -48,8 +40,7 @@
 <l>    TrainDict := RecipeDict.TrainDict</l>
 <c>    </c>
 <c>    *Get work region</c>
-<l>    WorkRegion := TrainDict.WorkRegion</l>
-<c>    </c>
+<l>    WorkRegion := TrainDict.WorkRegion    </l>
 <c>    </c>
 <c>    *Get box region</c>
 <l>    BoxRegion := TrainDict.BoxRegion</l>
@@ -59,20 +50,17 @@
 <c>    </c>
 <c>    *Check if there is a realHight from TCP </c>
 <l>    get_dict_param (InputDict, 'keys', [], InputDictKeys)</l>
-<l>    if(find(InputDictKeys, 'RealHeight') &gt;= 0)</l>
-<c>        </c>
-<l>        BoxSize.High := InputDict.RealHeight</l>
-<c>        </c>
+<c>    </c>
+<l>    if(find(InputDictKeys, 'RealHeight') &gt;= 0)        </l>
+<l>        BoxSize.High := InputDict.RealHeight        </l>
 <l>    endif</l>
 <c>    </c>
 <c>    *Get Model ID</c>
-<l>    ModelID := RecipeDict.ModelID</l>
-<c>    </c>
+<l>    ModelID := RecipeDict.ModelID    </l>
 <c>    </c>
 <l>    get_dict_param (TrainDict, 'keys', [], TrainDictKeys)</l>
 <c>    </c>
-<l>    StartAngle := RecipeDict.StartAngle</l>
-<c>    </c>
+<l>    StartAngle := RecipeDict.StartAngle    </l>
 <c>    </c>
 <c>    *Pose robot params</c>
 <l>    RobotPoseDict := InputDict.RobotPose</l>
@@ -85,9 +73,6 @@
 <l>    return ()</l>
 <c>    </c>
 <l>endtry</l>
-<c>**********************************************************************************************************************************************************************************************</c>
-<c></c>
-<c></c>
 <c></c>
 <c>**********************************************************************************************************************************************************************************************</c>
 <c>*                                                                        GET Z TOP Layer REGION</c>
@@ -105,7 +90,6 @@
 <c>    </c>
 <c>    *DeltaZ used to determine the steps needed to go down to find a complete layer</c>
 <l>    DeltaZ := BoxSize.High / 2.5</l>
-<c></c>
 <c>    </c>
 <c>    *Max compactness of the region to consider it a correct top region</c>
 <l>    Maxcompactness := 4.5</l>
@@ -147,8 +131,7 @@
 <c>        </c>
 <l>    endif</l>
 <c>    </c>
-<l>    decompose3(InputDict.DepthMap,X,Y,Z)</l>
-<c>    </c>
+<l>    decompose3(InputDict.DepthMap,X,Y,Z)    </l>
 <c>    </c>
 <c>    **********************</c>
 <c>    *get pallet region </c>
@@ -190,10 +173,6 @@
 <l>endtry</l>
 <c></c>
 <c>**********************************************************************************************************************************************************************************************</c>
-<c></c>
-<c></c>
-<c></c>
-<c>**********************************************************************************************************************************************************************************************</c>
 <c>*                                                                        APPLY FILTERS</c>
 <c>**********************************************************************************************************************************************************************************************</c>
 <l>try</l>
@@ -222,9 +201,6 @@
 <l>    return ()</l>
 <c>    </c>
 <l>endtry</l>
-<c></c>
-<c>**********************************************************************************************************************************************************************************************</c>
-<c></c>
 <c></c>
 <c>**********************************************************************************************************************************************************************************************</c>
 <c>*                                                                        FIND CANDIDATES</c>
@@ -270,9 +246,7 @@
 <l>    PercentageBox := 65</l>
 <c>    </c>
 <c>    *How to order detected candidates</c>
-<l>    OrderType := 'mY_mX'</l>
-<c>    </c>
-<c>    </c>
+<l>    OrderType := 'mY_mX'  </l>
 <c>    </c>
 <c>    ***********************</c>
 <c>    *Get dict params</c>
@@ -377,9 +351,7 @@
 <c>                        *Get transformation pose to move boxregion</c>
 <l>                        get_handle_tuple(Tuple,'clutter_hom_mat_2d',Data)</l>
 <c>                        </c>
-<l>                        get_handle_tuple(Tuple,'angle', AngleData)</l>
-<l>*                         get_handle_tuple(Tuple,'column',ColumnData)</l>
-<c>                        </c>
+<l>                        get_handle_tuple(Tuple,'angle', AngleData)                        </l>
 <c>                        </c>
 <c>                        *Translate box region </c>
 <l>                        affine_trans_region (BoxRegion, Box, Data, 'nearest_neighbor')</l>
@@ -387,8 +359,7 @@
 <c>                        *Save box region as detected boxes </c>
 <l>                        concat_obj (FindBoxes,Box,FindBoxes)</l>
 <c>                        </c>
-<l>                        get_generic_shape_model_result_object (CandidateContour, MatchResultID, IndexCandidate, 'contours')</l>
-<c>                        </c>
+<l>                        get_generic_shape_model_result_object (CandidateContour, MatchResultID, IndexCandidate, 'contours')                        </l>
 <c>                        </c>
 <c>                        *Save candidate to dict</c>
 <l>                        CandidatesResultDict.[NumCandidate] := dict{}</l>
@@ -397,8 +368,7 @@
 <l>                        CandidatesResultDict.[NumCandidate].ScaleColumn := ScaleColumnData</l>
 <l>                        CandidatesResultDict.[NumCandidate].BoxRegion := Box</l>
 <l>                        CandidatesResultDict.[NumCandidate].Contour := CandidateContour</l>
-<l>                        CandidatesResultDict.[NumCandidate].Angle := AngleData</l>
-<c>                        </c>
+<l>                        CandidatesResultDict.[NumCandidate].Angle := AngleData                        </l>
 <c>                        </c>
 <l>                        NumCandidate := NumCandidate + 1</l>
 <c>                        </c>
@@ -406,8 +376,7 @@
 <l>                        noCandidate := 0    </l>
 <l>                    endif</l>
 <c>                    </c>
-<l>                endfor</l>
-<c>                </c>
+<l>                endfor                </l>
 <c>                </c>
 <l>                count_obj (FindBoxes,BoxesNumber)</l>
 <c>                </c>
@@ -420,8 +389,7 @@
 <l>                    get_generic_shape_model_result (MatchResultID,'best','clutter_hom_mat_2d', Best_hom_mat_2d)</l>
 <l>                    affine_trans_region (BoxRegion, BestBox, Best_hom_mat_2d, 'nearest_neighbor')</l>
 <c>                    </c>
-<l>                    if(BoxesNumber&gt;=2)</l>
-<c>                        </c>
+<l>                    if(BoxesNumber&gt;=2)                        </l>
 <c>                        </c>
 <c>                        ****************************************************************</c>
 <c>                        *Check if there are more boxes detected than actually exist.</c>
@@ -433,7 +401,6 @@
 <l>                            region_features (BestBox,'area', BestBoxArea)</l>
 <c>                            </c>
 <l>                            min_intersection_area:=BestBoxArea/5     //Set as a param</l>
-<c></c>
 <c>                            </c>
 <l>                            gen_empty_obj (FindBoxesTemp)</l>
 <l>                            CandidatesTemp := dict{}</l>
@@ -453,16 +420,14 @@
 <l>                                for CheckIndex2 := 0 to BoxesNumber - 1 by 1</l>
 <c>                                    </c>
 <l>                                    if (CheckIndex != CheckIndex2)                                  //Used to don't analize same box</l>
-<l>*                                         select_obj (FindBoxes,ObjectToCheck,CheckIndex2)</l>
+<c>                                        </c>
 <l>                                        ObjectToCheck := CandidatesResultDict.[CheckIndex2].BoxRegion</l>
 <c></c>
 <l>                                        intersection (WorkObject,ObjectToCheck, RegionIntersection)</l>
 <c>                                        </c>
 <l>                                        union1 (RegionIntersection,RegionIntersection)</l>
 <c>                                        </c>
-<l>                                        region_features (RegionIntersection, 'area', Value)</l>
-<c>                                        </c>
-<c>                                        </c>
+<l>                                        region_features (RegionIntersection, 'area', Value)                                       </l>
 <c>                                        </c>
 <l>                                        if (Value&gt;min_intersection_area)</l>
 <c>                                            </c>
@@ -526,7 +491,6 @@
 <l>                            endfor</l>
 <c>                            </c>
 <l>                            FindBoxes := TempFindBoxes</l>
-<c></c>
 <c>                            </c>
 <l>                        catch (Ex)</l>
 <c>                            </c>
@@ -538,8 +502,7 @@
 <c>                            </c>
 <l>                        endtry</l>
 <c>                        </c>
-<l>                    endif</l>
-<c>                    </c>
+<l>                    endif                    </l>
 <c>                    </c>
 <c>                    ****************************************************************************************************</c>
 <c>                    *Check if all boxes was found</c>
@@ -552,8 +515,7 @@
 <c>                    </c>
 <l>                    OutputDict.MissingBox := dict{}</l>
 <c>                    </c>
-<l>                    try</l>
-<c>                        </c>
+<l>                    try                        </l>
 <c>                        </c>
 <c>                        *get difference to find if some box wasn't found </c>
 <l>                        difference(RegionDilation,AllBoxes, RegionDifference)</l>
@@ -576,12 +538,10 @@
 <c>                        </c>
 <l>                        if(|diffArea|)</l>
 <c>                            </c>
-<l>                            tuple_max (diffArea,MaxArea)</l>
-<c>                            </c>
+<l>                            tuple_max (diffArea,MaxArea)                            </l>
 <c>                            </c>
 <l>                            OutputDict.MissingBox.Region := MissingBox</l>
-<l>                            OutputDict.MissingBox.Area := MaxArea</l>
-<c>                            </c>
+<l>                            OutputDict.MissingBox.Area := MaxArea                            </l>
 <c>                            </c>
 <l>                            if(MaxArea &gt;= BestBoxArea * (PercentageBox/100.0))</l>
 <c>                                </c>
@@ -605,9 +565,7 @@
 <c>                                </c>
 <l>                            endif</l>
 <c>                            </c>
-<l>                        endif</l>
-<c>                        </c>
-<c>                        </c>
+<l>                        endif                      </l>
 <c>                        </c>
 <l>                    catch (Exception1)</l>
 <c>                        </c>
@@ -649,12 +607,7 @@
 <c>        </c>
 <l>        stop()</l>
 <c>        </c>
-<l>    endif</l>
-<c>    </c>
-<c>    </c>
-<c>    </c>
-<c>    </c>
-<c>    </c>
+<l>    endif  </l>
 <c>    </c>
 <l>catch(Ex)</l>
 <c>    </c>
@@ -666,10 +619,6 @@
 <l>    return ()</l>
 <c>    </c>
 <l>endtry</l>
-<c></c>
-<c></c>
-<c>**********************************************************************************************************************************************************************************************</c>
-<c></c>
 <c></c>
 <c>**********************************************************************************************************************************************************************************************</c>
 <c>*                                                                        GET BOXES POSE</c>
@@ -688,9 +637,7 @@
 <l>    OffsetX := 0</l>
 <l>    OffsetY := 0</l>
 <l>    OffsetZ := 0</l>
-<l>    OffsetAngle := 0</l>
-<c>    </c>
-<c>    </c>
+<l>    OffsetAngle := 0   </l>
 <c>    </c>
 <c>    ***********************</c>
 <c>    *Get dict params</c>
@@ -727,8 +674,7 @@
 <c>    </c>
 <c>    *****************************</c>
 <c>    * Get candidates position</c>
-<c>    *****************************</c>
-<c>    </c>
+<c>    *****************************    </c>
 <c>    </c>
 <l>    gen_empty_obj (CrossContainer)</l>
 <l>    count_obj (FindBoxes,BoxesNumber)</l>
@@ -743,8 +689,7 @@
 <c>        </c>
 <l>        smallest_rectangle2 (Box, BoxRow, BoxColumn, Phi, Length12, Length22)</l>
 <c>        </c>
-<l>        BoxPhi := CandidatesResultDict.[Index].Angle</l>
-<c>        </c>
+<l>        BoxPhi := CandidatesResultDict.[Index].Angle        </l>
 <c>        </c>
 <l>        Angle:=deg(BoxPhi + StartAngle)</l>
 <c>        </c>
@@ -767,8 +712,6 @@
 <c>        </c>
 <l>    endfor</l>
 <c>    </c>
-<c>    </c>
-<c>    </c>
 <l>catch(Ex)</l>
 <c>    </c>
 <l>    OutputDict.Error.General := 'Error: Getting Pose'</l>
@@ -778,11 +721,7 @@
 <c>    </c>
 <l>endtry</l>
 <c></c>
-<c></c>
-<c>**********************************************************************************************************************************************************************************************</c>
-<c></c>
-<c></c>
-<c>**********************************************************************************************************************************************************************************************</c>
+<c>*********************************************************************************************************************************************************************************************</c>
 <c>*                                                                        GET ROBOT POSE</c>
 <c>*********************************************************************************************************************************************************************************************    </c>
 <l>try</l>
@@ -799,8 +738,7 @@
 <c>    </c>
 <l>    if(find(RobotPoseDictKeys,'BaseHTool')&gt;=0)</l>
 <l>        BaseHTool := RobotPoseDict.BaseHTool</l>
-<l>    endif</l>
-<c>    </c>
+<l>    endif    </l>
 <c>    </c>
 <c>    *Apply transformation for all candidates</c>
 <l>    count_obj (FindBoxes,BoxesNumber)</l>
@@ -826,8 +764,7 @@
 <l>            Angle := Angle + 180</l>
 <l>        endif</l>
 <c></c>
-<l>        BaseHObj[5] := Angle</l>
-<c>        </c>
+<l>        BaseHObj[5] := Angle        </l>
 <c>        </c>
 <l>        CandidatesResultDict.[Index].BaseHObj := BaseHObj</l>
 <c>        </c>
@@ -844,16 +781,8 @@
 <c></c>
 <c>**********************************************************************************************************************************************************************************************</c>
 <c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
 <c>*Save results on outputdict</c>
 <l>OutputDict.Candidates := CandidatesResultDict</l>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
 <c></c>
 <c></c>
 <c>**********************************************************************************************************************************************************************************************</c>
@@ -874,8 +803,7 @@
 <c>        </c>
 <l>        count_obj (FindBoxes,BoxesNumber)</l>
 <c>        </c>
-<l>        if(BoxesNumber&gt;0)</l>
-<c>            </c>
+<l>        if(BoxesNumber&gt;0)            </l>
 <c>            </c>
 <l>            NumLevels := 20</l>
 <l>            LayerHigh := 0</l>
@@ -907,12 +835,6 @@
 <l>                    LayerHigh := HighLevel</l>
 <c>                    </c>
 <l>                endif</l>
-<c></c>
-<l>*                 if(ZMean &gt;= HighLevel * 0.88 and ZMean &lt;= HighLevel * 1.2)</l>
-<c>                    </c>
-<l>*                     LayerHigh := HighLevel</l>
-<c>                    </c>
-<l>*                 endif</l>
 <c>                </c>
 <l>            endfor</l>
 <c>            </c>
@@ -940,8 +862,7 @@
 <c>    </c>
 <c>    *Create a window</c>
 <l>    get_image_size (InputImage, Width, Height)</l>
-<l>    open_window(0,0,Width,Height,0,'invisible','',WindowHandleDumpWindow)</l>
-<c>    </c>
+<l>    open_window(0,0,Width,Height,0,'invisible','',WindowHandleDumpWindow)    </l>
 <c>    </c>
 <c>    *Set display settings</c>
 <l>    set_draw (WindowHandleDumpWindow,'margin')</l>
@@ -951,8 +872,7 @@
 <l>    set_part (WindowHandleDumpWindow, 0,0,-2,-2)</l>
 <c>    </c>
 <c>    *display Image</c>
-<l>    disp_obj(InputImage,WindowHandleDumpWindow)</l>
-<c>    </c>
+<l>    disp_obj(InputImage,WindowHandleDumpWindow)    </l>
 <c>    </c>
 <c>    *Define order color of box ROIs</c>
 <l>    color_dictionary:=['red', 'green', 'blue', 'yellow', 'cyan', 'magenta', 'pink', 'orange', 'dark olive green','medium slate blue','cadet blue','midnight blue','khaki']</l>
@@ -978,8 +898,7 @@
 <c>        </c>
 <l>        set_line_width (WindowHandleDumpWindow,8)</l>
 <c>        </c>
-<l>        ColorIndex := ColorIndex +1 </l>
-<c>        </c>
+<l>        ColorIndex := ColorIndex +1        </l>
 <c>        </c>
 <l>    endfor</l>
 <c>    </c>
@@ -999,30 +918,6 @@
 <l>    return ()</l>
 <c>    </c>
 <l>endtry</l>
-<c></c>
-<c></c>
-<c>**********************************************************************************************************************************************************************************************</c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<l>* stop()</l>
-<c></c>
 <c></c>
 <l>return ()</l>
 </body>
