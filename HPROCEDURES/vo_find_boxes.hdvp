@@ -29,24 +29,14 @@
 <l>    OutputDict.InputImage := InputImage</l>
 <l>    OutputDict.ImageResult := InputImage</l>
 <c>    </c>
-<c>    *Get Input Image 3D</c>
-<l>    gen_empty_obj (DepthMap)</l>
-<l>    DepthMap := InputDict.DepthMap</l>
-<l>    decompose3 (DepthMap, X, Y, Z)</l>
-<c>    </c>
-<c>    *Check main params on RecipeDict</c>
-<l>    RecipeDict := InputDict.RecipeDict</l>
-<c>    </c>
-<l>    TrainDict := RecipeDict.TrainDict</l>
-<c>    </c>
 <c>    *Get work region</c>
-<l>    WorkRegion := TrainDict.WorkRegion    </l>
+<l>    WorkRegion := InputDict.RecipeDict.TrainDict.WorkRegion    </l>
 <c>    </c>
 <c>    *Get box region</c>
-<l>    BoxRegion := TrainDict.BoxRegion</l>
+<l>    BoxRegion := InputDict.RecipeDict.TrainDict.BoxRegion</l>
 <c>    </c>
 <c>    *Real box size</c>
-<l>    BoxSize := TrainDict.BoxSize</l>
+<l>    BoxSize := InputDict.RecipeDict.TrainDict.BoxSize</l>
 <c>    </c>
 <c>    *Check if there is a realHight from TCP </c>
 <l>    get_dict_param (InputDict, 'keys', [], InputDictKeys)</l>
@@ -56,11 +46,11 @@
 <l>    endif</l>
 <c>    </c>
 <c>    *Get Model ID</c>
-<l>    ModelID := RecipeDict.ModelID    </l>
+<l>    ModelID := InputDict.RecipeDict.ModelID    </l>
 <c>    </c>
-<l>    get_dict_param (TrainDict, 'keys', [], TrainDictKeys)</l>
+<l>    get_dict_param (InputDict.RecipeDict.TrainDict, 'keys', [], TrainDictKeys)</l>
 <c>    </c>
-<l>    StartAngle := RecipeDict.StartAngle    </l>
+<l>    StartAngle := InputDict.RecipeDict.StartAngle    </l>
 <c>    </c>
 <c>    *Pose robot params</c>
 <l>    RobotPoseDict := InputDict.RobotPose</l>
@@ -105,7 +95,7 @@
 <c>    ********************************</c>
 <l>    if(find(TrainDictKeys,'GetTopROI')&gt;=0)</l>
 <c>        </c>
-<l>        GetTopDict := TrainDict.GetTopROI        </l>
+<l>        GetTopDict := InputDict.RecipeDict.TrainDict.GetTopROI        </l>
 <c>        </c>
 <l>        get_dict_param (GetTopDict, 'keys', [], GetTopDictKeys)</l>
 <c>        </c>
@@ -131,19 +121,17 @@
 <c>        </c>
 <l>    endif</l>
 <c>    </c>
-<l>    decompose3(InputDict.DepthMap,X,Y,Z)    </l>
+<l>    decompose3(InputDict.DepthMap, X, Y, Z)    </l>
 <c>    </c>
 <c>    **********************</c>
 <c>    *get pallet region </c>
 <c>    **********************</c>
-<l>    WorkRegion := InputDict.RecipeDict.TrainDict.WorkRegion</l>
-<c>    </c>
-<l>    DepthMap := InputDict.DepthMap</l>
+<l>    WorkRegion := InputDict.RecipeDict.TrainDict.WorkRegion   </l>
 <c>    </c>
 <l>    Palet_Width := 1200</l>
 <l>    Palet_Large := 1300</l>
 <c>    </c>
-<l>    vo_define_palet (DepthMap, WorkRegion, WorkRegion, Palet_Large, Palet_Width)</l>
+<l>    vo_define_palet (InputDict.DepthMap, WorkRegion, WorkRegion, Palet_Large, Palet_Width)</l>
 <c>    </c>
 <l>    dilation_rectangle1 (WorkRegion, RegionDilation, 20, 20)</l>
 <l>    fill_up (RegionDilation, WorkRegion)       </l>
@@ -182,7 +170,7 @@
 <c>    *check if exist process params</c>
 <l>    if(find(TrainDictKeys,'Filters')&gt;=0)</l>
 <c>        </c>
-<l>        FiltersDict := TrainDict.Filters</l>
+<l>        FiltersDict := InputDict.RecipeDict.TrainDict.Filters</l>
 <c>        </c>
 <l>        vo_process_image (InputImage, FilteredImage, FiltersDict, OutProcess)</l>
 <c>        </c>
@@ -254,7 +242,7 @@
 <c>    </c>
 <l>    if(find(TrainDictKeys,'CheckCandidates')&gt;=0)</l>
 <c>        </c>
-<l>        CheckCandidatesDict := TrainDict.CheckCandidates</l>
+<l>        CheckCandidatesDict := InputDict.RecipeDict.TrainDict.CheckCandidates</l>
 <c>        </c>
 <l>        get_dict_param (CheckCandidatesDict, 'keys', [], CheckCandidatesDictKeys)</l>
 <c>        </c>
@@ -287,12 +275,10 @@
 <c>    *Order candidates </c>
 <l>    if(find(TrainDictKeys,'OrderCandidates')&gt;=0)</l>
 <c>        </c>
-<l>        OrderCandidatesDict := TrainDict.OrderCandidates</l>
+<l>        get_dict_param (InputDict.RecipeDict.TrainDict.OrderCandidates, 'keys', [], OrderCandidatesDictKeys)</l>
 <c>        </c>
-<l>        get_dict_param (OrderCandidatesDict, 'keys', [], OrderCandidatesDictKeys)</l>
-<c>        </c>
-<l>        if(find(GetTopDictKeys,'OrderType')&gt;=0)</l>
-<l>            OrderType := OrderCandidatesDict.MinScoreCandidate</l>
+<l>        if(find(OrderCandidatesDictKeys,'OrderType')&gt;=0)</l>
+<l>            OrderType := InputDict.RecipeDict.TrainDict.OrderCandidates.MinScoreCandidate</l>
 <l>        endif</l>
 <c>        </c>
 <l>    endif </l>
@@ -309,10 +295,12 @@
 <l>    numBoxes := 0</l>
 <c>    </c>
 <l>    tempScoreCandidate := ScoreCandidate</l>
+<l>    tempScaleCandidate := ScaleCandidate</l>
 <c>    </c>
 <l>    while ( not is_all_found and tempScoreSM &gt;= MinScoreSM)</l>
 <c>        </c>
 <l>        ScoreCandidate := tempScoreCandidate</l>
+<l>        ScaleCandidate := tempScoreCandidate</l>
 <c>        </c>
 <c>        *************************************</c>
 <c>        * Find candidates </c>
@@ -321,7 +309,6 @@
 <l>        find_generic_shape_model (FindImage, ModelID, MatchResultID, NumMatchResult)</l>
 <c>        </c>
 <l>        if(NumMatchResult &gt; 0)</l>
-<l>            get_generic_shape_model_result_object (Objects, MatchResultID, 'all', 'contours')</l>
 <c>            </c>
 <c>            *Determine if all boxes were found</c>
 <l>            while (not is_all_found and ScoreCandidate &gt;= MinScoreCandidate)</l>
@@ -372,8 +359,6 @@
 <c>                        </c>
 <l>                        NumCandidate := NumCandidate + 1</l>
 <c>                        </c>
-<l>                    else</l>
-<l>                        noCandidate := 0    </l>
 <l>                    endif</l>
 <c>                    </c>
 <l>                endfor                </l>
@@ -402,7 +387,6 @@
 <c>                            </c>
 <l>                            min_intersection_area:=BestBoxArea/5     //Set as a param</l>
 <c>                            </c>
-<l>                            gen_empty_obj (FindBoxesTemp)</l>
 <l>                            CandidatesTemp := dict{}</l>
 <l>                            tempNumCandidate := 0</l>
 <c>                            </c>
@@ -458,7 +442,7 @@
 <l>                                if (is_ok)</l>
 <c>                                    </c>
 <l>                                    CandidatesTemp.[tempNumCandidate] := CandidatesResultDict.[CheckIndex]</l>
-<l>*                                     concat_obj (FindBoxesTemp,WorkObject,FindBoxesTemp)</l>
+<c></c>
 <l>                                    tempNumCandidate := tempNumCandidate + 1</l>
 <l>                                endif</l>
 <c>                                </c>
@@ -518,7 +502,7 @@
 <l>                    try                        </l>
 <c>                        </c>
 <c>                        *get difference to find if some box wasn't found </c>
-<l>                        difference(RegionDilation,AllBoxes, RegionDifference)</l>
+<l>                        difference(RegionDilation, AllBoxes, RegionDifference)</l>
 <c>                        </c>
 <l>                        erosion_rectangle1 (RegionDifference, RegionErosion, 20, 20)</l>
 <c>                        </c>
@@ -526,9 +510,7 @@
 <c>                        </c>
 <l>                        dilation_rectangle1 (ConnectedRegions, RegionDilation, 20, 20)</l>
 <c>                        </c>
-<l>                        select_shape (RegionDilation, SelectedRegions, 'area', 'and', 1000, 999999999999)</l>
-<c>                        </c>
-<l>                        region_features (SelectedRegions, 'compactness', Value1)</l>
+<l>                        select_shape (RegionDilation, SelectedRegions, 'area', 'and', 1000, 999999999999)                        </l>
 <c>                        </c>
 <l>                        select_shape (SelectedRegions, MissingBox, 'compactness', 'and', 0, 5)</l>
 <c>                        </c>
@@ -645,7 +627,7 @@
 <c>    </c>
 <l>    if(find(TrainDictKeys,'GetPose')&gt;=0)</l>
 <c>        </c>
-<l>        GetPoseDict := TrainDict.GetPose</l>
+<l>        GetPoseDict := InputDict.RecipeDict.TrainDict.GetPose</l>
 <c>        </c>
 <l>        get_dict_param (GetPoseDict, 'keys', [], GetPoseDictKeys)</l>
 <c>        </c>
