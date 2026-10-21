@@ -230,10 +230,10 @@
 <l>    MinScaleCandidate:=0.5</l>
 <c>    </c>
 <c>    *Initial score for detected candidates</c>
-<l>    ScoreCandidate := 0.65</l>
+<l>    ScoreCandidate := 0.8</l>
 <c>    </c>
 <c>    *Initial scale for detected candidates</c>
-<l>    ScaleCandidate := 0.65</l>
+<l>    ScaleCandidate := 0.8</l>
 <c>    </c>
 <c>    *Get trained shape model min score</c>
 <l>    get_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
