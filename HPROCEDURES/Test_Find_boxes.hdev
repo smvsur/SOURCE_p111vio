@@ -58,7 +58,7 @@
 <l>        select_obj (ObjectToTest, ObjectSelected, 2)</l>
 <l>        InputDict.InputImage := ObjectSelected</l>
 <c>        </c>
-<l>        vo_find_boxes (InputDict, OutputDict)</l>
+<l>        vo_process_data (InputDict, OutputDict)</l>
 <c>        </c>
 <l>        gen_empty_obj (i)</l>
 <c>        </c>

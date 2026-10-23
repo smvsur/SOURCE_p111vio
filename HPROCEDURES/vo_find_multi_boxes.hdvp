@@ -169,7 +169,7 @@
 <c>    * Process region</c>
 <c>    ********************************</c>
 <l>    dilation_rectangle1 (LayerRegion, RegionDilation, DilationRect, DilationRect)</l>
-<l>*     fill_up (RegionDilation, RegionFillUp)</l>
+<c></c>
 <l>    fill_up_shape (RegionDilation, RegionFillUp, 'area', 1, 100)</l>
 <c>    </c>
 <l>    union1 (RegionFillUp, TopZRegion)</l>
