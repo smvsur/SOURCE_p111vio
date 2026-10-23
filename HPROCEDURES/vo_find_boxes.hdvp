@@ -36,7 +36,7 @@
 <l>    BoxRegion := InputDict.RecipeDict.TrainDict.BoxRegion</l>
 <c>    </c>
 <c>    *Real box size</c>
-<l>    BoxSize := InputDict.RecipeDict.TrainDict.BoxSize</l>
+<l>    copy_dict (InputDict.RecipeDict.TrainDict.BoxSize, [], [], BoxSize)</l>
 <c>    </c>
 <c>    *Check if there is a realHight from TCP </c>
 <l>    get_dict_param (InputDict, 'keys', [], InputDictKeys)</l>
@@ -372,113 +372,110 @@
 <l>                    get_generic_shape_model_result (MatchResultID,'best','clutter_hom_mat_2d', Best_hom_mat_2d)</l>
 <l>                    affine_trans_region (BoxRegion, BestBox, Best_hom_mat_2d, 'nearest_neighbor')</l>
 <c>                    </c>
-<l>                    if(BoxesNumber&gt;=2)                        </l>
+<c>                    ****************************************************************</c>
+<c>                    *Check if there are more boxes detected than actually exist.</c>
+<c>                    ***************************************************************</c>
+<l>                    try      </l>
 <c>                        </c>
-<c>                        ****************************************************************</c>
-<c>                        *Check if there are more boxes detected than actually exist.</c>
-<c>                        ***************************************************************</c>
-<l>                        try      </l>
+<l>                        CandidatesTemp := dict{}</l>
+<l>                        tempNumCandidate := 0</l>
+<c>                        </c>
+<l>                        for CheckIndex := 0 to BoxesNumber - 1 by 1</l>
 <c>                            </c>
-<l>                            CandidatesTemp := dict{}</l>
-<l>                            tempNumCandidate := 0</l>
+<l>                            WorkObject := CandidatesResultDict.[CheckIndex].BoxRegion</l>
 <c>                            </c>
-<l>                            for CheckIndex := 0 to BoxesNumber - 1 by 1</l>
+<l>                            region_features (WorkObject, 'area', WorkObjectArea)</l>
+<c>                            </c>
+<l>                            min_intersection_area:=WorkObjectArea/5</l>
+<c>                            </c>
+<l>                            is_ok:=true</l>
+<c>                            </c>
+<c>                            *If there is any box intersection with the current box (WorkObject), remove it from FindBoxes if its score is less than that of the intersecting box</c>
+<l>                            for CheckIndex2 := 0 to BoxesNumber - 1 by 1</l>
 <c>                                </c>
-<l>                                WorkObject := CandidatesResultDict.[CheckIndex].BoxRegion</l>
-<c>                                </c>
-<l>                                region_features (WorkObject, 'area', WorkObjectArea)</l>
-<c>                                </c>
-<l>                                min_intersection_area:=WorkObjectArea/5</l>
-<c>                                </c>
-<l>                                is_ok:=true</l>
-<c>                                </c>
-<c>                                *If there is any box intersection with the current box (WorkObject), remove it from FindBoxes if its score is less than that of the intersecting box</c>
-<l>                                for CheckIndex2 := 0 to BoxesNumber - 1 by 1</l>
+<l>                                if (CheckIndex != CheckIndex2)                                  //Used to don't analize same box</l>
 <c>                                    </c>
-<l>                                    if (CheckIndex != CheckIndex2)                                  //Used to don't analize same box</l>
-<c>                                        </c>
-<l>                                        ObjectToCheck := CandidatesResultDict.[CheckIndex2].BoxRegion</l>
+<l>                                    ObjectToCheck := CandidatesResultDict.[CheckIndex2].BoxRegion</l>
 <c></c>
-<l>                                        intersection (WorkObject,ObjectToCheck, RegionIntersection)</l>
+<l>                                    intersection (WorkObject,ObjectToCheck, RegionIntersection)</l>
+<c>                                    </c>
+<l>                                    union1 (RegionIntersection, RegionIntersection)</l>
+<c>                                    </c>
+<l>                                    region_features (RegionIntersection, 'area', Value)                                       </l>
+<c>                                    </c>
+<l>                                    if (Value &gt; min_intersection_area)</l>
 <c>                                        </c>
-<l>                                        union1 (RegionIntersection,RegionIntersection)</l>
+<c>                                        *Check better score</c>
 <c>                                        </c>
-<l>                                        region_features (RegionIntersection, 'area', Value)                                       </l>
-<c>                                        </c>
-<l>                                        if (Value&gt;min_intersection_area)</l>
-<c>                                            </c>
-<c>                                            *Check better score</c>
-<c>                                            </c>
-<l>                                            if (Score[CheckIndex]&lt;Score[CheckIndex2])</l>
-<l>                                                is_ok:=false</l>
+<l>                                        if (Score[CheckIndex]&lt;Score[CheckIndex2])</l>
+<l>                                            is_ok:=false</l>
 <l>*                                                 stop()</l>
-<l>                                            endif</l>
 <l>                                        endif</l>
-<c>                                        </c>
-<c>                                        *Check if the box is outside of the Layer region</c>
-<l>                                        difference (WorkObject, TopZRegion, RegionOutTopRegion)</l>
-<l>                                        region_features (RegionOutTopRegion, 'area', AreaOutTopRegion)</l>
-<l>                                        if(AreaOutTopRegion &gt; min_intersection_area)</l>
-<c>                                            </c>
-<l>                                            is_ok := false</l>
-<c>                                            </c>
-<l>                                        endif</l>
-<c>                                        </c>
-<l>                                        if(not is_ok)</l>
-<l>                                            break</l>
-<l>                                        endif</l>
-<c>                                        </c>
-<l>                                    endif   </l>
-<l>                                endfor</l>
-<c>                                </c>
-<l>                                if (is_ok)</l>
+<l>                                    endif</l>
 <c>                                    </c>
-<l>                                    CandidatesTemp.[tempNumCandidate] := CandidatesResultDict.[CheckIndex]</l>
-<c></c>
-<l>                                    tempNumCandidate := tempNumCandidate + 1</l>
+<l>                                    if(not is_ok)</l>
+<l>                                        break</l>
+<l>                                    endif</l>
+<c>                                    </c>
+<l>                                endif   </l>
+<l>                            endfor</l>
+<c>                            </c>
+<c>                            *Check if the box is outside of the Layer region</c>
+<l>                            if (is_ok)</l>
+<l>                                difference (WorkObject, TopZRegion, RegionOutTopRegion)</l>
+<l>                                region_features (RegionOutTopRegion, 'area', AreaOutTopRegion)</l>
+<l>                                if(AreaOutTopRegion &gt; min_intersection_area)</l>
+<l>                                    is_ok := false</l>
 <l>                                endif</l>
+<l>                            endif</l>
+<c>                            </c>
+<l>                            if (is_ok)</l>
 <c>                                </c>
-<l>                            endfor</l>
+<l>                                CandidatesTemp.[tempNumCandidate] := CandidatesResultDict.[CheckIndex]</l>
+<c></c>
+<l>                                tempNumCandidate := tempNumCandidate + 1</l>
+<l>                            endif</l>
 <c>                            </c>
-<l>                        catch (Ex)</l>
-<c>                            </c>
-<l>                            set_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
-<l>                            OutputDict.Error.General := 'Checking if there are collision boxes'</l>
-<l>                            OutputDict.Error.Exception := Ex</l>
-<l>                            stop()</l>
-<l>                            return ()</l>
-<c>                            </c>
-<l>                        endtry</l>
+<l>                        endfor</l>
 <c>                        </c>
-<l>                        try</l>
-<c>                            </c>
-<c>                            *Set a box order</c>
-<l>                            vo_order_boxes (CandidatesTemp, OrderType, CandidatesResultDict)</l>
-<c>                            </c>
-<c>                            *Get all boxes region </c>
-<l>                            get_dict_param (CandidatesResultDict, 'keys', [], keysCandidates)</l>
-<c>                            </c>
-<l>                            gen_empty_obj (TempFindBoxes)</l>
-<c>                            </c>
-<l>                            for IndexCandidates := 0 to |keysCandidates|-1 by 1</l>
-<c>                                </c>
-<l>                                concat_obj (TempFindBoxes, CandidatesResultDict.[IndexCandidates].BoxRegion, TempFindBoxes)</l>
-<c>                                </c>
-<l>                            endfor</l>
-<c>                            </c>
-<l>                            FindBoxes := TempFindBoxes</l>
-<c>                            </c>
-<l>                        catch (Ex)</l>
-<c>                            </c>
-<l>                            set_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
-<l>                            OutputDict.Error.General := 'Arranging Boxes'</l>
-<l>                            OutputDict.Error.Exception := Ex</l>
-<l>                            stop()</l>
-<l>                            return ()</l>
-<c>                            </c>
-<l>                        endtry</l>
+<l>                    catch (Ex)</l>
 <c>                        </c>
-<l>                    endif                    </l>
+<l>                        set_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
+<l>                        OutputDict.Error.General := 'Checking if there are collision boxes'</l>
+<l>                        OutputDict.Error.Exception := Ex</l>
+<l>                        stop()</l>
+<l>                        return ()</l>
+<c>                        </c>
+<l>                    endtry</l>
+<c>                    </c>
+<l>                    try</l>
+<c>                        </c>
+<c>                        *Set a box order</c>
+<l>                        vo_order_boxes (CandidatesTemp, OrderType, CandidatesResultDict)</l>
+<c>                        </c>
+<c>                        *Get all boxes region </c>
+<l>                        get_dict_param (CandidatesResultDict, 'keys', [], keysCandidates)</l>
+<c>                        </c>
+<l>                        gen_empty_obj (TempFindBoxes)</l>
+<c>                        </c>
+<l>                        for IndexCandidates := 0 to |keysCandidates|-1 by 1</l>
+<c>                            </c>
+<l>                            concat_obj (TempFindBoxes, CandidatesResultDict.[IndexCandidates].BoxRegion, TempFindBoxes)</l>
+<c>                            </c>
+<l>                        endfor</l>
+<c>                        </c>
+<l>                        FindBoxes := TempFindBoxes</l>
+<c>                        </c>
+<l>                    catch (Ex)</l>
+<c>                        </c>
+<l>                        set_generic_shape_model_param (ModelID, 'min_score', scoreSM)</l>
+<l>                        OutputDict.Error.General := 'Arranging Boxes'</l>
+<l>                        OutputDict.Error.Exception := Ex</l>
+<l>                        stop()</l>
+<l>                        return ()</l>
+<c>                        </c>
+<l>                    endtry</l>
+<c>                    </c>
 <c>                    </c>
 <c>                    ****************************************************************************************************</c>
 <c>                    *Check if all boxes was found</c>
