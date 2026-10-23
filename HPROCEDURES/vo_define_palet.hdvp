@@ -33,7 +33,7 @@
 <c>        *Define Z limits</c>
 <l>    threshold (Z, ZRegion, 1, 1000000000000)</l>
 <c>    </c>
-<l>   intersection (XRegion, YRegion, RegionIntersection)</l>
+<l>    intersection (XRegion, YRegion, RegionIntersection)</l>
 <l>    intersection (RegionIntersection, ZRegion, WorkRegionOut)</l>
 <l>return ()</l>
 </body>

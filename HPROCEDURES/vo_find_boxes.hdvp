@@ -125,9 +125,7 @@
 <c>    </c>
 <c>    **********************</c>
 <c>    *get pallet region </c>
-<c>    **********************</c>
-<l>    WorkRegion := InputDict.RecipeDict.TrainDict.WorkRegion   </l>
-<c>    </c>
+<c>    **********************    </c>
 <l>    Palet_Width := 1200</l>
 <l>    Palet_Large := 1300</l>
 <c>    </c>
@@ -278,7 +276,7 @@
 <l>        get_dict_param (InputDict.RecipeDict.TrainDict.OrderCandidates, 'keys', [], OrderCandidatesDictKeys)</l>
 <c>        </c>
 <l>        if(find(OrderCandidatesDictKeys,'OrderType')&gt;=0)</l>
-<l>            OrderType := InputDict.RecipeDict.TrainDict.OrderCandidates.MinScoreCandidate</l>
+<l>            OrderType := InputDict.RecipeDict.TrainDict.OrderCandidates.OrderType</l>
 <l>        endif</l>
 <c>        </c>
 <l>    endif </l>
@@ -300,7 +298,7 @@
 <l>    while ( not is_all_found and tempScoreSM &gt;= MinScoreSM)</l>
 <c>        </c>
 <l>        ScoreCandidate := tempScoreCandidate</l>
-<l>        ScaleCandidate := tempScoreCandidate</l>
+<l>        ScaleCandidate := tempScaleCandidate</l>
 <c>        </c>
 <c>        *************************************</c>
 <c>        * Find candidates </c>
@@ -379,13 +377,7 @@
 <c>                        ****************************************************************</c>
 <c>                        *Check if there are more boxes detected than actually exist.</c>
 <c>                        ***************************************************************</c>
-<l>                        try</l>
-<c>                            </c>
-<c>                            *Use the best box area value to define how match min_intersection_area is</c>
-<c>                            </c>
-<l>                            region_features (BestBox,'area', BestBoxArea)</l>
-<c>                            </c>
-<l>                            min_intersection_area:=BestBoxArea/5     //Set as a param</l>
+<l>                        try      </l>
 <c>                            </c>
 <l>                            CandidatesTemp := dict{}</l>
 <l>                            tempNumCandidate := 0</l>
@@ -508,9 +500,9 @@
 <c>                        </c>
 <l>                        connection (RegionErosion, ConnectedRegions)</l>
 <c>                        </c>
-<l>                        dilation_rectangle1 (ConnectedRegions, RegionDilation, 20, 20)</l>
+<l>                        dilation_rectangle1 (ConnectedRegions, ConnectedRegionsDilation, 20, 20)</l>
 <c>                        </c>
-<l>                        select_shape (RegionDilation, SelectedRegions, 'area', 'and', 1000, 999999999999)                        </l>
+<l>                        select_shape (ConnectedRegionsDilation, SelectedRegions, 'area', 'and', 1000, 999999999999)                        </l>
 <c>                        </c>
 <l>                        select_shape (SelectedRegions, MissingBox, 'compactness', 'and', 0, 5)</l>
 <c>                        </c>
