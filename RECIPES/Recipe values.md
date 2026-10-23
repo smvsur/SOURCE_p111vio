@@ -1,0 +1,914 @@
+# Recipe values
+
+Read on: **2026-10-23**
+
+> Values read with HALCON 24.11 (`read_dict`) from `RECIPES/*.hdict`.
+> Images, regions and contours are summarized (size / area / number of objects).
+> `FiltersResult` (filter debug images) and `Error` (empty in all recipes) are omitted.
+
+## Recipes
+
+- [10BOT750mlB1](#10bot750mlb1)
+- [10PROMO780ml](#10promo780ml)
+- [10PROMODESIC780ml](#10promodesic780ml)
+- [12BOT500ml](#12bot500ml)
+- [12BOT750ml](#12bot750ml)
+- [12BOT750mlB1](#12bot750mlb1)
+- [12BOT750mlB1_test](#12bot750mlb1_test)
+- [14 BOTCIF750](#14-botcif750)
+- [14BOTCIF750](#14botcif750)
+- [5LSTD](#5lstd)
+- [5LSTD_2025](#5lstd_2025)
+- [5LSTD_old](#5lstd_old)
+- [5LSTD_withL](#5lstd_withl)
+- [6BOT7506CIF](#6bot7506cif)
+- [6PROMO780ml](#6promo780ml)
+- [6PROMO780ml_L](#6promo780ml_l)
+- [EmptyRecipe](#emptyrecipe)
+- [KH7-Linea](#kh7-linea)
+- [KH7](#kh7)
+- [Little-Logo](#little-logo)
+- [Little-Logo_0](#little-logo_0)
+- [Little-Logo_1](#little-logo_1)
+- [Marron_1](#marron_1)
+- [Marron_2](#marron_2)
+
+## 10BOT750mlB1
+
+- `ModelContour` — *xld_cont (4 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0.0147048`
+- `TrainDict`
+  - `BoxRegion` — *region, area 14730 px*
+  - `BoxSize`
+    - `High` — `290`
+    - `Large` — `290`
+    - `Width` — `290`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `num_levels` — `3`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.6`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.6`
+  - `ShapeROI` — *region, area 4973 px (2 objects)*
+  - `WorkRegion` — *region, area 461376 px*
+
+## 10PROMO780ml
+
+- `ModelContour` — *xld_cont (10 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0.0263097`
+- `TrainDict`
+  - `BoxRegion` — *region, area 16528 px*
+  - `BoxSize`
+    - `High` — `300`
+    - `Large` — `278`
+    - `Width` — `196`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `DilationRectAfter` — `2`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `num_levels` — `4`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.7`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.7`
+  - `SecondRecipe`
+    - `Name` — `"5LSTD_withL"`
+    - `Recipe`
+      - `ModelContour` — *xld_cont (14 objects)*
+      - `ModelID` — `handle:shape_model`
+      - `StartAngle` — `-1.51087`
+      - `TrainDict`
+        - `BoxRegion` — *region, area 16824 px*
+        - `BoxSize`
+          - `High` — `300`
+          - `Large` — `278`
+          - `Width` — `196`
+        - `CheckCandidates`
+          - `PercentageBox` — `70`
+        - `Filters`
+          - `Channel` — `1`
+          - `DilationRectAfter` — `2`
+          - `ErosionRectBefore` — `4`
+        - `GetTopROI` — *(empty)*
+        - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+        - `SMParams`
+          - `max_overlap` — `0`
+          - `min_score` — `0.5`
+          - `num_levels` — `4`
+          - `scale_column_max` — `1.9`
+          - `scale_column_min` — `0.7`
+          - `scale_row_max` — `1.9`
+          - `scale_row_min` — `0.7`
+        - `ShapeROI` — *region, area 10278 px (2 objects)*
+        - `WorkRegion` — *region, area 448560 px*
+  - `ShapeROI` — *region, area 9532 px (2 objects)*
+  - `WorkRegion` — *region, area 449939 px*
+
+## 10PROMODESIC780ml
+
+- `ModelContour` — *xld_cont (10 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0.0263097`
+- `TrainDict`
+  - `BoxRegion` — *region, area 16528 px*
+  - `BoxSize`
+    - `High` — `300`
+    - `Large` — `278`
+    - `Width` — `196`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `DilationRectAfter` — `2`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `num_levels` — `4`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.7`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.7`
+  - `SecondRecipe`
+    - `Name` — `"5LSTD_withL"`
+    - `Recipe`
+      - `ModelContour` — *xld_cont (14 objects)*
+      - `ModelID` — `handle:shape_model`
+      - `StartAngle` — `-1.51087`
+      - `TrainDict`
+        - `BoxRegion` — *region, area 16824 px*
+        - `BoxSize`
+          - `High` — `300`
+          - `Large` — `278`
+          - `Width` — `196`
+        - `CheckCandidates`
+          - `PercentageBox` — `70`
+        - `Filters`
+          - `Channel` — `1`
+          - `DilationRectAfter` — `2`
+          - `ErosionRectBefore` — `4`
+        - `GetTopROI` — *(empty)*
+        - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+        - `SMParams`
+          - `max_overlap` — `0`
+          - `min_score` — `0.5`
+          - `num_levels` — `4`
+          - `scale_column_max` — `1.9`
+          - `scale_column_min` — `0.7`
+          - `scale_row_max` — `1.9`
+          - `scale_row_min` — `0.7`
+        - `ShapeROI` — *region, area 10278 px (2 objects)*
+        - `WorkRegion` — *region, area 448560 px*
+  - `ShapeROI` — *region, area 9532 px (2 objects)*
+  - `WorkRegion` — *region, area 449939 px*
+
+## 12BOT500ml
+
+- `ModelContour` — *xld_cont (14 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0.0185164`
+- `TrainDict`
+  - `BoxRegion` — *region, area 14018 px*
+  - `BoxSize`
+    - `High` — `245`
+    - `Large` — `310`
+    - `Width` — `170`
+  - `CheckCandidates`
+    - `MinScoreSM` — `0.5`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI`
+    - `DeltaZ` — `100`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `min_score` — `0.6`
+    - `num_levels` — `3`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.6`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.6`
+  - `ShapeROI` — *region, area 4746 px*
+  - `WorkRegion` — *region, area 388399 px*
+
+## 12BOT750ml
+
+- `ModelContour` — *xld_cont (18 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0`
+- `TrainDict`
+  - `BoxRegion` — *region, area 15846 px*
+  - `BoxSize`
+    - `High` — `245`
+    - `Large` — `291`
+    - `Width` — `290`
+  - `CheckCandidates`
+    - `MinScoreSM` — `0.5`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI`
+    - `DeltaZ` — `200`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `min_score` — `0.6`
+    - `num_levels` — `3`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.6`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.6`
+  - `SecondRecipe`
+    - `Name` — `"12BOT750mlB1"`
+    - `Recipe`
+      - `ModelContour` — *xld_cont (5 objects)*
+      - `ModelID` — `handle:shape_model`
+      - `StartAngle` — `-0.0227234`
+      - `TrainDict`
+        - `BoxRegion` — *region, area 14705 px*
+        - `BoxSize`
+          - `High` — `290`
+          - `Large` — `290`
+          - `Width` — `290`
+        - `CheckCandidates`
+          - `PercentageBox` — `70`
+        - `Filters`
+          - `Channel` — `1`
+          - `ErosionRectBefore` — `4`
+        - `GetTopROI` — *(empty)*
+        - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+        - `SMParams`
+          - `max_overlap` — `0`
+          - `min_score` — `0.5`
+          - `scale_column_max` — `1.9`
+          - `scale_column_min` — `0.7`
+          - `scale_row_max` — `1.9`
+          - `scale_row_min` — `0.7`
+        - `ShapeROI` — *region, area 7396 px (2 objects)*
+        - `WorkRegion` — *region, area 443256 px*
+  - `ShapeROI` — *region, area 3479 px*
+  - `WorkRegion` — *region, area 401760 px*
+
+## 12BOT750mlB1
+
+- `ModelContour` — *xld_cont (5 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `-0.0227234`
+- `TrainDict`
+  - `BoxRegion` — *region, area 14705 px*
+  - `BoxSize`
+    - `High` — `290`
+    - `Large` — `290`
+    - `Width` — `290`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.7`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.7`
+  - `ShapeROI` — *region, area 7396 px (2 objects)*
+  - `WorkRegion` — *region, area 443256 px*
+
+## 12BOT750mlB1_test
+
+- `ModelContour` — *xld_cont (5 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `-0.0227234`
+- `TrainDict`
+  - `BoxRegion` — *region, area 14705 px*
+  - `BoxSize`
+    - `High` — `290`
+    - `Large` — `290`
+    - `Width` — `290`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.7`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.7`
+  - `ShapeROI` — *region, area 7396 px (2 objects)*
+  - `WorkRegion` — *region, area 443256 px*
+
+## 14 BOTCIF750
+
+- `ModelContour` — *xld_cont (20 objects)*
+- `ModelID` — `handle:shape_model`
+- `TrainDict`
+  - `BoxRegion` — *region, area 9045 px*
+  - `BoxSize`
+    - `High` — `293`
+    - `Large` — `275`
+    - `Width` — `240`
+  - `CheckCandidates` — *(empty)*
+  - `Filters`
+    - `Channel` — `1`
+    - `ScaleRange` — `[80, 200]`
+  - `GetTopROI`
+    - `DeltaZ` — `100`
+    - `Maxcompactness` — `4.5`
+    - `MinArea` — `3000`
+    - `MinRectangularity` — `0.8`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `contrast_high` — `40`
+    - `max_overlap` — `0`
+    - `min_score` — `0.4`
+    - `min_size` — `35`
+    - `num_levels` — `3`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.75`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.75`
+  - `ShapeROI` — *region, area 1071 px*
+  - `WorkRegion` — *region, area 309754 px*
+
+## 14BOTCIF750
+
+- `ModelContour` — *xld_cont*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0.0245852`
+- `TrainDict`
+  - `BoxRegion` — *region, area 19949 px*
+  - `BoxSize`
+    - `High` — `295`
+    - `Large` — `390`
+    - `Width` — `190`
+  - `CheckCandidates` — *(empty)*
+  - `Filters`
+    - `Channel` — `1`
+    - `DilationRectAfter` — `2`
+    - `ErosionRectBefore` — `4`
+    - `ScaleRange` — `[80, 200]`
+  - `GetTopROI`
+    - `DeltaZ` — `100`
+    - `Maxcompactness` — `4.5`
+    - `MinArea` — `3000`
+    - `MinRectangularity` — `0.8`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `contrast_high` — `40`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `min_size` — `35`
+    - `num_levels` — `3`
+    - `scale_column_max` — `1.3`
+    - `scale_column_min` — `0.75`
+    - `scale_row_max` — `1.3`
+    - `scale_row_min` — `0.75`
+  - `ShapeROI` — *region, area 1830 px*
+  - `WorkRegion` — *region, area 351518 px*
+
+## 5LSTD
+
+- `ModelContour` — *xld_cont (13 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `1.55565`
+- `TrainDict`
+  - `BoxRegion` — *region, area 12412 px*
+  - `BoxSize`
+    - `High` — `300`
+    - `Large` — `278`
+    - `Width` — `196`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `DilationRectAfter` — `2`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `num_levels` — `4`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.7`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.7`
+  - `SecondRecipe`
+    - `Name` — `"5LSTD_withL"`
+    - `Recipe`
+      - `ModelContour` — *xld_cont (14 objects)*
+      - `ModelID` — `handle:shape_model`
+      - `StartAngle` — `-1.51087`
+      - `TrainDict`
+        - `BoxRegion` — *region, area 16824 px*
+        - `BoxSize`
+          - `High` — `300`
+          - `Large` — `278`
+          - `Width` — `196`
+        - `CheckCandidates`
+          - `PercentageBox` — `70`
+        - `Filters`
+          - `Channel` — `1`
+          - `DilationRectAfter` — `2`
+          - `ErosionRectBefore` — `4`
+        - `GetTopROI` — *(empty)*
+        - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+        - `SMParams`
+          - `max_overlap` — `0`
+          - `min_score` — `0.5`
+          - `num_levels` — `4`
+          - `scale_column_max` — `1.9`
+          - `scale_column_min` — `0.7`
+          - `scale_row_max` — `1.9`
+          - `scale_row_min` — `0.7`
+        - `ShapeROI` — *region, area 10278 px (2 objects)*
+        - `WorkRegion` — *region, area 448560 px*
+  - `ShapeROI` — *region, area 5582 px (2 objects)*
+  - `WorkRegion` — *region, area 448560 px*
+
+## 5LSTD_2025
+
+- `ModelContour` — *xld_cont (18 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `-1.54139`
+- `TrainDict`
+  - `BoxRegion` — *region, area 18988 px*
+  - `BoxSize`
+    - `High` — `240`
+    - `Large` — `290`
+    - `Width` — `290`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+    - `ScaleRange` — `[90, 151]`
+  - `GetTopROI`
+    - `DeltaZ` — `200`
+    - `MinArea` — `6000`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `num_levels` — `4`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.4`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.4`
+  - `ShapeROI` — *region, area 7046 px (2 objects)*
+  - `WorkRegion` — *region, area 442386 px*
+
+## 5LSTD_old
+
+- `ModelContour` — *xld_cont (7 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `-1.5153`
+- `TrainDict`
+  - `BoxRegion` — *region, area 21003 px*
+  - `BoxSize`
+    - `High` — `240`
+    - `Large` — `290`
+    - `Width` — `290`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+    - `ScaleRange` — `[90, 151]`
+  - `GetTopROI`
+    - `DeltaZ` — `200`
+    - `MinArea` — `7000`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_deformation` — `2`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `num_levels` — `3`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.4`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.4`
+  - `ShapeROI` — *region, area 7135 px (2 objects)*
+  - `WorkRegion` — *region, area 434238 px*
+
+## 5LSTD_withL
+
+- `ModelContour` — *xld_cont (14 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `-1.50567`
+- `TrainDict`
+  - `BoxRegion` — *region, area 17328 px*
+  - `BoxSize`
+    - `High` — `300`
+    - `Large` — `278`
+    - `Width` — `196`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `DilationRectAfter` — `2`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `num_levels` — `4`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.7`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.7`
+  - `ShapeROI` — *region, area 10504 px (2 objects)*
+  - `WorkRegion` — *region, area 450770 px*
+
+## 6BOT7506CIF
+
+- `ModelContour` — *xld_cont (16 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0`
+- `TrainDict`
+  - `BoxRegion` — *region, area 16905 px*
+  - `BoxSize`
+    - `High` — `290`
+    - `Large` — `288`
+    - `Width` — `187`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.6`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.6`
+  - `ShapeROI` — *region, area 6679 px (2 objects)*
+  - `WorkRegion` — *region, area 400881 px*
+
+## 6PROMO780ml
+
+- `ModelContour` — *xld_cont (29 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0.0121945`
+- `TrainDict`
+  - `BoxRegion` — *region, area 19094 px*
+  - `BoxSize`
+    - `High` — `270`
+    - `Large` — `320`
+    - `Width` — `215`
+  - `CheckCandidates`
+    - `PercentageBox` — `65`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `3`
+    - `ScaleRange` — `[90, 151]`
+  - `GetTopROI`
+    - `DeltaZ` — `200`
+    - `MinArea` — `7000`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.4`
+    - `num_levels` — `3`
+    - `scale_column_max` — `2`
+    - `scale_column_min` — `0.4`
+    - `scale_row_max` — `2`
+    - `scale_row_min` — `0.4`
+  - `SecondRecipe`
+    - `Name` — `"6PROMO780ml_L"`
+    - `Recipe`
+      - `ModelContour` — *xld_cont (32 objects)*
+      - `ModelID` — `handle:shape_model`
+      - `StartAngle` — `0.0121945`
+      - `TrainDict`
+        - `BoxRegion` — *region, area 19094 px*
+        - `BoxSize`
+          - `High` — `270`
+          - `Large` — `320`
+          - `Width` — `215`
+        - `CheckCandidates`
+          - `PercentageBox` — `65`
+        - `Filters`
+          - `Channel` — `1`
+          - `ErosionRectBefore` — `3`
+          - `ScaleRange` — `[90, 151]`
+        - `GetTopROI`
+          - `DeltaZ` — `200`
+          - `MinArea` — `7000`
+        - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+        - `SMParams`
+          - `max_overlap` — `0`
+          - `min_score` — `0.4`
+          - `num_levels` — `3`
+          - `scale_column_max` — `2`
+          - `scale_column_min` — `0.4`
+          - `scale_row_max` — `2`
+          - `scale_row_min` — `0.4`
+        - `ShapeROI` — *region, area 12032 px (2 objects)*
+        - `WorkRegion` — *region, area 473010 px*
+  - `ShapeROI` — *region, area 8729 px (2 objects)*
+  - `WorkRegion` — *region, area 473010 px*
+
+## 6PROMO780ml_L
+
+- `ModelContour` — *xld_cont (32 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0.0121945`
+- `TrainDict`
+  - `BoxRegion` — *region, area 19094 px*
+  - `BoxSize`
+    - `High` — `270`
+    - `Large` — `320`
+    - `Width` — `215`
+  - `CheckCandidates`
+    - `PercentageBox` — `65`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `3`
+    - `ScaleRange` — `[90, 151]`
+  - `GetTopROI`
+    - `DeltaZ` — `200`
+    - `MinArea` — `7000`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.4`
+    - `num_levels` — `3`
+    - `scale_column_max` — `2`
+    - `scale_column_min` — `0.4`
+    - `scale_row_max` — `2`
+    - `scale_row_min` — `0.4`
+  - `ShapeROI` — *region, area 12032 px (2 objects)*
+  - `WorkRegion` — *region, area 473010 px*
+
+## EmptyRecipe
+
+- `Filters` — *(empty)*
+- `ModelID` — `handle:shape_model`
+- `TrainDict`
+  - `BoxRegion` — *region, area 20342 px*
+  - `BoxSize`
+    - `High` — `120`
+    - `Large` — `100`
+    - `Width` — `120`
+  - `Filters` — *(empty)*
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0.9`
+    - `min_score` — `0.4`
+    - `min_size` — `35`
+  - `ShapeROI` — *region, area 7740 px (2 objects)*
+  - `WorkRegion` — *region, area 410951 px*
+
+## KH7-Linea
+
+- `ModelContour` — *xld_cont (5 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `-0.0525831`
+- `TrainDict`
+  - `BoxRegion` — *region, area 15228 px*
+  - `BoxSize`
+    - `High` — `290`
+    - `Large` — `290`
+    - `Width` — `290`
+  - `CheckCandidates`
+    - `PercentageBox` — `70`
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI` — *(empty)*
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.5`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.7`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.7`
+  - `ShapeROI` — *region, area 7396 px (2 objects)*
+  - `WorkRegion` — *region, area 358182 px*
+
+## KH7
+
+- `ModelContour` — *xld_cont (18 objects)*
+- `ModelID` — `handle:shape_model`
+- `StartAngle` — `0`
+- `TrainDict`
+  - `BoxRegion` — *region, area 15846 px*
+  - `BoxSize`
+    - `High` — `290`
+    - `Large` — `290`
+    - `Width` — `290`
+  - `CheckCandidates` — *(empty)*
+  - `Filters`
+    - `Channel` — `1`
+    - `ErosionRectBefore` — `4`
+  - `GetTopROI`
+    - `DeltaZ` — `100`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `min_score` — `0.6`
+    - `num_levels` — `3`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.6`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.6`
+  - `ShapeROI` — *region, area 3479 px*
+  - `WorkRegion` — *region, area 388399 px*
+
+## Little-Logo
+
+- `ModelContour` — *xld_cont (21 objects)*
+- `ModelID` — `handle:shape_model`
+- `TrainDict`
+  - `BoxRegion` — *region, area 21855 px*
+  - `BoxSize`
+    - `High` — `293`
+    - `Large` — `275`
+    - `Width` — `240`
+  - `Filters`
+    - `Channel` — `4`
+    - `ErosionRectBefore` — `4`
+    - `ScaleRange` — `[80, 200]`
+  - `GetTopROI`
+    - `DeltaZ` — `100`
+    - `Maxcompactness` — `4.5`
+    - `MinArea` — `3000`
+    - `MinRectangularity` — `0.8`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `contrast_high` — `40`
+    - `max_overlap` — `0`
+    - `min_score` — `0.4`
+    - `min_size` — `35`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.75`
+    - `scale_column_step` — `0.1`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.75`
+    - `scale_row_step` — `0.1`
+  - `ShapeROI` — *region, area 5278 px (2 objects)*
+  - `WorkRegion` — *region, area 334304 px*
+
+## Little-Logo_0
+
+- `ModelContour` — *xld_cont (47 objects)*
+- `ModelID` — `handle:shape_model`
+- `TrainDict`
+  - `BoxRegion` — *region, area 22166 px*
+  - `BoxSize`
+    - `High` — `293`
+    - `Large` — `275`
+    - `Width` — `240`
+  - `Filters`
+    - `Channel` — `4`
+    - `ErosionRectBefore` — `4`
+    - `ScaleRange` — `[80, 200]`
+  - `GetTopROI`
+    - `DeltaZ` — `100`
+    - `Maxcompactness` — `4.5`
+    - `MinArea` — `3000`
+    - `MinRectangularity` — `0.8`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `max_overlap` — `0`
+    - `min_score` — `0.4`
+    - `min_size` — `35`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.35`
+    - `scale_column_step` — `0.1`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.75`
+    - `scale_row_step` — `0.1`
+  - `ShapeROI` — *region, area 5278 px (2 objects)*
+  - `WorkRegion` — *region, area 334304 px*
+
+## Little-Logo_1
+
+- `ModelContour` — *xld_cont (21 objects)*
+- `ModelID` — `handle:shape_model`
+- `TrainDict`
+  - `BoxRegion` — *region, area 22705 px*
+  - `BoxSize`
+    - `High` — `293`
+    - `Large` — `275`
+    - `Width` — `240`
+  - `CheckCandidates` — *(empty)*
+  - `Filters`
+    - `Channel` — `4`
+    - `ScaleRange` — `[90, 200]`
+  - `GetTopROI`
+    - `DeltaZ` — `100`
+    - `Maxcompactness` — `4.5`
+    - `MinArea` — `3000`
+    - `MinRectangularity` — `0.8`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `contrast_high` — `45`
+    - `max_overlap` — `0`
+    - `min_score` — `0.4`
+    - `min_size` — `40`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.75`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.75`
+  - `ShapeROI` — *region, area 1161 px*
+  - `WorkRegion` — *region, area 334304 px*
+
+## Marron_1
+
+- `ModelContour` — *xld_cont (20 objects)*
+- `ModelID` — `handle:shape_model`
+- `TrainDict`
+  - `BoxRegion` — *region, area 9045 px*
+  - `BoxSize`
+    - `High` — `293`
+    - `Large` — `275`
+    - `Width` — `240`
+  - `CheckCandidates` — *(empty)*
+  - `Filters`
+    - `Channel` — `1`
+    - `ScaleRange` — `[80, 200]`
+  - `GetTopROI`
+    - `DeltaZ` — `100`
+    - `Maxcompactness` — `4.5`
+    - `MinArea` — `3000`
+    - `MinRectangularity` — `0.8`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `contrast_high` — `40`
+    - `max_overlap` — `0`
+    - `min_score` — `0.4`
+    - `min_size` — `35`
+    - `num_levels` — `3`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.75`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.75`
+  - `ShapeROI` — *region, area 1071 px*
+  - `WorkRegion` — *region, area 309754 px*
+
+## Marron_2
+
+- `ModelContour` — *xld_cont (23 objects)*
+- `ModelID` — `handle:shape_model`
+- `TrainDict`
+  - `BoxRegion` — *region, area 9348 px*
+  - `BoxSize`
+    - `High` — `293`
+    - `Large` — `275`
+    - `Width` — `240`
+  - `CheckCandidates` — *(empty)*
+  - `Filters`
+    - `Channel` — `1`
+    - `ScaleRange` — `[80, 200]`
+  - `GetTopROI`
+    - `DeltaZ` — `100`
+    - `Maxcompactness` — `4.5`
+    - `MinArea` — `3000`
+    - `MinRectangularity` — `0.8`
+  - `ImageToTrain` — *image 1280x720, 3 channel(s), byte*
+  - `SMParams`
+    - `contrast_high` — `40`
+    - `max_overlap` — `0`
+    - `min_score` — `0.4`
+    - `min_size` — `35`
+    - `num_levels` — `3`
+    - `scale_column_max` — `1.9`
+    - `scale_column_min` — `0.75`
+    - `scale_row_max` — `1.9`
+    - `scale_row_min` — `0.75`
+  - `ShapeROI` — *region, area 1438 px (2 objects)*
+  - `WorkRegion` — *region, area 310500 px*
