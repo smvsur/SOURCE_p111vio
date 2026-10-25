@@ -28,7 +28,6 @@
 <c></c>
 <l>list_image_files ('../IMAGES/' + RecipeName, 'hobj', [], ImageFiles) </l>
 <c></c>
-<c></c>
 <c>*Manipulate recipe</c>
 <c></c>
 <l>TrainDict := DictHandle.TrainDict</l>
@@ -43,14 +42,12 @@
 <l>        InputDict := dict{}</l>
 <l>        InputDict.RecipeDict := DictHandle</l>
 <l>        InputDict.RobotPose := dict{}</l>
-<l>        create_pose (520, 515,3060, 180, -90, 0, 'Rp+T', 'abg', 'point', RobotPose)</l>
 <c>        </c>
+<l>        create_pose (520, 515,3060, 180, -90, 0, 'Rp+T', 'abg', 'point', RobotPose)        </l>
 <l>        InputDict.RobotPose.BaseHTool := RobotPose</l>
 <c>        </c>
-<l>        read_pose ('../CALIBRATION/toolHcam.dat', ToolHCam)</l>
-<c>        </c>
-<l>        InputDict.RobotPose.ToolHCam := ToolHCam</l>
-<c>        </c>
+<l>        read_pose ('../CALIBRATION/toolHcam.dat', ToolHCam)        </l>
+<l>        InputDict.RobotPose.ToolHCam := ToolHCam        </l>
 <c>        </c>
 <l>        read_object (ObjectToTest, ImageFiles[Index])</l>
 <l>        select_obj (ObjectToTest, ObjectSelected1, 1)</l>
@@ -66,15 +63,10 @@
 <c>        </c>
 <l>        dev_display(OutputDict.ImageResult)</l>
 <c>        </c>
-<l>*         wait_seconds(1)</l>
-<c>        </c>
 <l>        stop()</l>
 <l>    catch(Ex)</l>
 <l>        stop()</l>
 <l>    endtry</l>
-<c></c>
-<c>    </c>
-<l>*     write_dict (OutputDict,'./Recipes/KH7-linea.hdict', [], [])</l>
 <c>    </c>
 <l>endfor</l>
 </body>
