@@ -45,7 +45,8 @@ later read by the find procedures from `RecipeDict.TrainDict`.
   - `MinArea` — *real* — default: area of `BoxRegion` / 3  
     Min area to consider a correct top region
   - `DeltaZ` — *real* — default: `BoxSize.High` / 2.5  
-    DeltaZ used to determine the steps needed to go down to find a complete layer
+    DeltaZ used to determine the steps needed to go down to find a complete layer.
+    Limited to `BoxSize.High` / 2: a bigger value merges two layers (e.g. a single box and the pallet).
   - `Maxcompactness` — *real* — default: `4.5`  
     Max compactness of the region to consider it a correct top region
   - `MinRectangularity` — *real* — default: `0.8`  

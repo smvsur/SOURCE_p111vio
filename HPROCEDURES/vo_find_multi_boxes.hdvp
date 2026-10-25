@@ -140,6 +140,11 @@
 <l>    endif</l>
 <c>    </c>
 <c>    </c>
+<l>    MaxDeltaZ := InputDict.RecipeDict.TrainDict.BoxSize.High / 2.0</l>
+<l>    if(DeltaZ &gt; MaxDeltaZ)</l>
+<l>        DeltaZ := MaxDeltaZ</l>
+<l>    endif</l>
+<c>    </c>
 <l>     decompose3(InputDict.DepthMap,X,Y,Z)</l>
 <c>    </c>
 <c>    </c>
