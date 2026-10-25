@@ -246,7 +246,7 @@
 <c>    </c>
 <l>endif</l>
 <c></c>
-<l>NCandidates := IndexCandidates + NCandidates</l>
+<l>NCandidates := NCandidates + NCandidates2</l>
 <c></c>
 <c></c>
 <c>*Get all candidates of BestSegmentation</c>

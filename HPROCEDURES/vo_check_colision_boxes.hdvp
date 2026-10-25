@@ -97,21 +97,8 @@
 <l>try</l>
 <c>    </c>
 <c>    *Set a box order</c>
-<l>    vo_order_boxes (CandidatesOutput, 'mY_mX', CandidatesInput)</l>
-<c>    </c>
-<c>    *Get all boxes region </c>
-<l>    get_dict_param (CandidatesInput, 'keys', [], keysCandidates)</l>
-<c>    </c>
-<l>    gen_empty_obj (TempFindBoxes)</l>
-<c>    </c>
-<l>    for IndexCandidates := 0 to |keysCandidates|-1 by 1</l>
-<c>        </c>
-<l>        concat_obj (TempFindBoxes, CandidatesInput.[IndexCandidates].BoxRegion, TempFindBoxes)</l>
-<c>        </c>
-<l>    endfor</l>
-<c>    </c>
-<l>    FindBoxesOut := TempFindBoxes</l>
-<c>    </c>
+<l>    vo_order_boxes (CandidatesOutput, 'mY_mX', OrderedCandidates)</l>
+<l>    CandidatesOutput := OrderedCandidates</l>
 <c>    </c>
 <l>catch (Ex)</l>
 <c>    </c>
