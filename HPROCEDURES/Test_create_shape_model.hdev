@@ -9,7 +9,10 @@
 <c>*</c>
 <c>*******************************************************************************************</c>
 <c></c>
-<l>read_object (Object,'./Hobj/Little-Logo/obj_020.hobj')</l>
+<l>RecipeName := '12BOT750ml'</l>
+<l>ImageName := '15-30'</l>
+<c></c>
+<l>read_object (Object, '../IMAGES/' + RecipeName + '/' + ImageName  + '.hobj')</l>
 <l>select_obj (Object, ImageToTrian, 2)</l>
 <l>get_image_size (ImageToTrian, Width, Height)</l>
 <c></c>
@@ -126,9 +129,6 @@
 <c>*Select traing channel </c>
 <l>InputDict.Filters.Channel := 4  </l>
 <l>InputDict.Filters.ErosionRectBefore := 4</l>
-<l>* InputDict.Filters.DilationRectBefore := 1</l>
-<l>* InputDict.Filters.ErosionRectAfter := 4</l>
-<l>* InputDict.Filters.DilationRectAfter := 1</l>
 <l>InputDict.Filters.ScaleRange := [80,200]</l>
 <c></c>
 <c>*********************************************</c>
@@ -158,7 +158,6 @@
 <l>InputDict.GetTopROI.DeltaZ := 100</l>
 <l>InputDict.GetTopROI.Maxcompactness := 4.5</l>
 <l>InputDict.GetTopROI.MinRectangularity := 0.8</l>
-<c></c>
 <c></c>
 <c>**********************************************************************************************************</c>
 <c>*</c>
@@ -191,7 +190,7 @@
 <c>*</c>
 <c>**********************************************************************************************************</c>
 <c></c>
-<l>list_image_files ('./Hobj/Little-Logo', 'hobj', [], ImageFiles) </l>
+<l>list_image_files ('../IMAGES/' + RecipeName, 'hobj', [], ImageFiles) </l>
 <c></c>
 <l>for Index := 0 to |ImageFiles|-1 by 1</l>
 <c>    </c>
@@ -219,8 +218,7 @@
 <c>        </c>
 <l>        union1 (RegionFillUp, TopZRegion)</l>
 <c>        </c>
-<l>        vo_process_image (ImageToTest,OutputImage,InputDict.Process,OutputDict1)</l>
-<c>       </c>
+<l>        vo_process_image (ImageToTest, OutputImage, InputDict.Process,OutputDict1)       </l>
 <c>        </c>
 <l>        reduce_domain (OutputImage, TopZRegion, ImageReduced)</l>
 <c>        </c>
@@ -238,7 +236,7 @@
 <l>        stop()</l>
 <l>    endtry</l>
 <c>    </c>
-<l>    write_dict (OutputDict,'./Recipes/Little-Logo.hdict', [], [])</l>
+<l>    write_dict (OutputDict, '../RECIPES/' + RecipeName + '.hdict', [], [])</l>
 <c>    </c>
 <l>endfor</l>
 </body>
