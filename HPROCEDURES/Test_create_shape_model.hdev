@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hdevelop file_version="1.2" halcon_version="24.05.0.0">
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
 <procedure name="main">
 <interface/>
 <body>
 <c>*******************************************************************************************</c>
 <c>*</c>
-<c>*</c>
 <c>*               This program is used to test Palletizer shape model creator</c>
 <c>*</c>
-<c>*</c>
 <c>*******************************************************************************************</c>
+<c></c>
 <l>read_object (Object,'./Hobj/Little-Logo/obj_020.hobj')</l>
 <l>select_obj (Object, ImageToTrian, 2)</l>
 <l>get_image_size (ImageToTrian, Width, Height)</l>
@@ -24,6 +23,7 @@
 <c>*                                          Get Box ROI</c>
 <c>*</c>
 <c>**********************************************************************************************************</c>
+<c></c>
 <c>* Draw rectangle describing the box to train</c>
 <l>disp_message (WindowHandle, 'Draw box ROI', 'window', 12, 12, 'black', 'true')</l>
 <c>*</c>
@@ -49,7 +49,6 @@
 <c>*</c>
 <l>disp_continue_message (WindowHandle, 'black', 'true')</l>
 <l>stop()</l>
-<c></c>
 <c></c>
 <l>dev_clear_window ()</l>
 <l>dev_display (ImageToTrian)</l>
@@ -80,8 +79,6 @@
 <l>    dev_display (RectangleSM)</l>
 <c>   </c>
 <l>endfor</l>
-<c></c>
-<c></c>
 <c></c>
 <l>disp_message (WindowHandle, 'Train the model', 'window', 12, 12, 'black', 'true')</l>
 <l>disp_continue_message (WindowHandle, 'black', 'true')</l>
@@ -121,8 +118,6 @@
 <c>*</c>
 <c>**********************************************************************************************************</c>
 <c></c>
-<c></c>
-<c></c>
 <c>**************************************</c>
 <c>*      Process params</c>
 <c>**************************************</c>
@@ -140,46 +135,19 @@
 <c>*                Shape Model Params</c>
 <c>*********************************************</c>
 <l>InputDict.SMParams := dict{}</l>
-<l>* InputDict.SMParams.scale_type := 'auto'  </l>
-<l>InputDict.SMParams.contrast_high := 40</l>
-<l>* InputDict.SMParams.contrast_low := 30</l>
-<l>* InputDict.SMParams.angle_step := 0</l>
-<l>* InputDict.SMParams.metric := 'auto'     //'use_polarity' , 'ignore_global_polarity', 'ignore_local_polarity', 'ignore_color_polarity'      </l>
+<c></c>
+<l>InputDict.SMParams.contrast_high := 40 </l>
 <l>InputDict.SMParams.min_size := 35</l>
-<l>* InputDict.SMParams.optimization := 0</l>
-<l>* InputDict.SMParams.num_levels := 0</l>
-<l>* InputDict.SMParams.angle_start := 0</l>
-<l>* InputDict.SMParams.angle_end := 0</l>
-<l>* InputDict.SMParams.max_deformation := 0</l>
+<c></c>
 <l>InputDict.SMParams.min_score := 0.4</l>
-<l>* InputDict.SMParams.num_matches := 0</l>
-<l>* InputDict.SMParams.strict_boundaries := 0</l>
 <l>InputDict.SMParams.max_overlap := 0</l>
-<l>* InputDict.SMParams.max_overlap_global_enable  := 0</l>
-<l>* InputDict.SMParams.min_contrast := 0</l>
-<l>* InputDict.SMParams.border_shape_models  := 0</l>
-<l>* InputDict.SMParams.subpixel  := 0</l>
-<l>* InputDict.SMParams.greediness  := 0</l>
-<l>* InputDict.SMParams.pyramid_level_highest  := 0</l>
-<l>* InputDict.SMParams.pyramid_level_lowest  := 0</l>
-<l>* InputDict.SMParams.pyramid_level_robust_tracking  := 0</l>
-<l>* InputDict.SMParams.origin_row := 0</l>
-<l>* InputDict.SMParams.origin_column := 0</l>
-<l>* InputDict.SMParams.prepare_contours_for_visualization := 0</l>
-<l>* InputDict.SMParams.prepare_clutter_region_for_visualization := 0</l>
-<l>* InputDict.SMParams.model_cache := 0</l>
-<l>* InputDict.SMParams.timeout := 0</l>
-<l>* InputDict.SMParams.time_measurement := 0</l>
-<l>* InputDict.SMParams.iso_scale_max := 1.5</l>
-<l>* InputDict.SMParams.iso_scale_min := 0.5</l>
-<l>* InputDict.SMParams.iso_scale_step := 0.1</l>
+<c></c>
 <l>InputDict.SMParams.scale_row_max := 1.9</l>
 <l>InputDict.SMParams.scale_row_min := 0.75</l>
 <l>InputDict.SMParams.scale_row_step := 0.1</l>
 <l>InputDict.SMParams.scale_column_max := 1.9</l>
 <l>InputDict.SMParams.scale_column_min := 0.75</l>
 <l>InputDict.SMParams.scale_column_step := 0.1</l>
-<c></c>
 <c></c>
 <c>**************************************</c>
 <c>*            Get top region params </c>
@@ -210,8 +178,6 @@
 <l>    stop()</l>
 <l>endtry</l>
 <c></c>
-<c></c>
-<c></c>
 <l>try</l>
 <l>    Error := OutputDict.Error</l>
 <c>    </c>
@@ -225,14 +191,12 @@
 <c>*</c>
 <c>**********************************************************************************************************</c>
 <c></c>
-<l>* list_image_files ('./Hobj/KH7', 'hobj', [], ImageFiles)</l>
 <l>list_image_files ('./Hobj/Little-Logo', 'hobj', [], ImageFiles) </l>
-<l>* list_image_files ('./Hobj/KH7-linea', 'hobj', [], ImageFiles)</l>
-<c></c>
 <c></c>
 <l>for Index := 0 to |ImageFiles|-1 by 1</l>
 <c>    </c>
 <l>    try</l>
+<c>        </c>
 <l>        read_object (ObjectToTest, ImageFiles[Index])</l>
 <l>        select_obj (ObjectToTest, XYZToTest, 1)</l>
 <l>        access_channel (XYZToTest, Z, 3)</l>
@@ -245,8 +209,7 @@
 <l>        DeltaZ:= 290 / 2.5                                      </l>
 <l>        Maxcompactness:= 4.5 </l>
 <l>        MinRectangularity:= 0.8</l>
-<l>        get_top_Z_work_region (Z, WorkRegion, LayerRegion, DeltaZ, MinArea, MinRectangularity, Maxcompactness)</l>
-<c>        </c>
+<l>        get_top_Z_work_region (Z, WorkRegion, LayerRegion, DeltaZ, MinArea, MinRectangularity, Maxcompactness)        </l>
 <c>        </c>
 <c>        *Reduce domain with top Z boxes</c>
 <c>        </c>
@@ -274,54 +237,10 @@
 <l>    catch(Ex)</l>
 <l>        stop()</l>
 <l>    endtry</l>
-<c></c>
 <c>    </c>
 <l>    write_dict (OutputDict,'./Recipes/Little-Logo.hdict', [], [])</l>
 <c>    </c>
 <l>endfor</l>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
-<c></c>
 </body>
 <docu id="main">
 <parameters/>
